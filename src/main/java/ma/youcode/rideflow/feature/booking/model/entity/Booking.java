@@ -32,4 +32,12 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "pickup_point_id", nullable = false)
+    private Waypoint pickupPoint;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "dropoff_point_id", nullable = false)
+    private Waypoint dropoffPoint;
 }
