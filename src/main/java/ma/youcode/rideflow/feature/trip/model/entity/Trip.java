@@ -28,7 +28,7 @@ public class Trip {
     private LocalDateTime departureDateTime;
 
     @Column(name = "proposed_seats", nullable = false)
-    private Integer proposedSeats;
+    private int proposedSeats;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
