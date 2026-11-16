@@ -23,7 +23,7 @@ public class Waypoint {
     private String city;
 
     @Min(0)
-    @Column(nullable = false)
+    @Column(name = "waypoint_order", nullable = false)
     private int order;
 
     @Column(name = "passage_time", nullable = false)

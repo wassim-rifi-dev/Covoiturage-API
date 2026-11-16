@@ -2,6 +2,8 @@ package ma.youcode.rideflow.feature.trip.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ma.youcode.rideflow.feature.car.model.entity.Car;
+import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
 import java.time.LocalDateTime;
@@ -35,6 +37,14 @@ public class Trip {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TripStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "driver_id", nullable = false)
+    private Driver driver;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "car_id", nullable = false)
+    private Car car;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("order ASC")
