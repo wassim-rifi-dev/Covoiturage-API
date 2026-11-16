@@ -23,7 +23,7 @@ public record CreateDriverRequestDTO(
         String email,
 
         @NotBlank(message = "Phone is required")
-        @Pattern(regexp = "^(?:\\+212|06)[0-9]{8}$", message = "Phone must start with +212 or 06, followed by exactly 8 digits")
+        @Pattern(regexp = "^(?:\\+212|0)[67][0-9]{8}$", message = "Phone must start with +212 or 06, followed by exactly 8 digits")
         String phone,
 
         @JsonProperty("license_number")
