@@ -3,6 +3,7 @@ package ma.youcode.rideflow.feature.booking.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
+import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 
 import java.math.BigDecimal;
@@ -21,7 +22,7 @@ public class Booking {
     private Long id;
 
     @Column(name = "number_of_seats", nullable = false)
-    private Integer numberOfSeats;
+    private int numberOfSeats;
 
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
@@ -32,6 +33,10 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "passenger_id", nullable = false)
+    private Passenger passenger;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "pickup_point_id", nullable = false)
