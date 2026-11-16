@@ -32,4 +32,8 @@ public class Car {
     @Max(8)
     @Column(name = "passenger_capacity")
     private int passengerCapacity;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "driver_id", nullable = false)
+    private Driver driver;
 }
