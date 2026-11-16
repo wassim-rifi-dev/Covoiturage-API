@@ -1,6 +1,8 @@
 package ma.youcode.rideflow.feature.driver.service;
 
 import lombok.RequiredArgsConstructor;
+import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
+import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
@@ -18,4 +20,16 @@ public class DriverService {
     private final DriverMapper driverMapper;
 
     public DriverResponseDTO createDriver(CreateDriverRequestDTO createDriverRequestDTO) {}
+
+    private void driverExisteByEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Email already existe.");
+        }
+    }
+
+    private void driverExisteByLicenseNumber(String licenseNumber) {
+        if (driverRepository.existsByLicenseNumber(licenseNumber)) {
+            throw new LicenseNumberAlreadyExistsException("License number already existe.");
+        }
+    }
 }
