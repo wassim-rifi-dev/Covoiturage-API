@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
+import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 
 import java.math.BigDecimal;
@@ -33,6 +34,10 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "passenger_id", nullable = false)
