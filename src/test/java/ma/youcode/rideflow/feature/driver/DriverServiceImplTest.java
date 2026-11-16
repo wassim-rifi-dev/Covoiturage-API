@@ -1,5 +1,6 @@
 package ma.youcode.rideflow.feature.driver;
 
+import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
@@ -72,5 +73,36 @@ public class DriverServiceImplTest {
         verify(driverMapper).toEntity(requestDTO);
         verify(driverRepository).save(driver);
         verify(driverMapper).toResponseDto(driver);
+    }
+
+    @Test
+    void createDriver_shouldThrowEmailAlreadyExistsException_whenEmailExist() {
+
+        // Arrange
+        CreateDriverRequestDTO requestDTO = new CreateDriverRequestDTO(
+                "test",
+                "app",
+                "test@gmail.com",
+                "+212611223344",
+                "145263"
+        );
+
+        when(userRepository.existsByEmail(requestDTO.email())).thenReturn(true);
+
+        // Act
+        EmailAlreadyExistsException exception = assertThrows(
+                EmailAlreadyExistsException.class,
+                () -> driverService.createDriver(requestDTO)
+        );
+
+        // Assert
+        assertEquals("Email already existe.", exception.getMessage());
+
+        // Verify
+        verify(userRepository).existsByEmail(requestDTO.email());
+        verify(driverRepository, never()).existsByLicenseNumber(any());
+        verify(driverMapper, never()).toEntity(any());
+        verify(driverRepository, never()).save(any());
+        verify(driverMapper, never()).toResponseDto(any());
     }
 }
