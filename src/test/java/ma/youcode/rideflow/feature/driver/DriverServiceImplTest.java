@@ -1,6 +1,7 @@
 package ma.youcode.rideflow.feature.driver;
 
 import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
+import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
@@ -101,6 +102,38 @@ public class DriverServiceImplTest {
         // Verify
         verify(userRepository).existsByEmail(requestDTO.email());
         verify(driverRepository, never()).existsByLicenseNumber(any());
+        verify(driverMapper, never()).toEntity(any());
+        verify(driverRepository, never()).save(any());
+        verify(driverMapper, never()).toResponseDto(any());
+    }
+
+    @Test
+    void createDriver_shouldThrowLicenseNumberAlreadyExistsException_whenLicenseNumberExist() {
+
+        // Arrange
+        CreateDriverRequestDTO requestDTO = new CreateDriverRequestDTO(
+                "test",
+                "app",
+                "test@gmail.com",
+                "+212611223344",
+                "145263"
+        );
+
+        when(userRepository.existsByEmail(requestDTO.email())).thenReturn(false);
+        when(driverRepository.existsByLicenseNumber(requestDTO.licenseNumber())).thenReturn(true);
+
+        // Act
+        LicenseNumberAlreadyExistsException exception = assertThrows(
+                LicenseNumberAlreadyExistsException.class,
+                () -> driverService.createDriver(requestDTO)
+        );
+
+        // Assert
+        assertEquals("License number already existe.", exception.getMessage());
+
+        // Verify
+        verify(userRepository).existsByEmail(requestDTO.email());
+        verify(driverRepository).existsByLicenseNumber(requestDTO.licenseNumber());
         verify(driverMapper, never()).toEntity(any());
         verify(driverRepository, never()).save(any());
         verify(driverMapper, never()).toResponseDto(any());
