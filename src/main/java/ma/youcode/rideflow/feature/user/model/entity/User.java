@@ -1,4 +1,13 @@
 package ma.youcode.rideflow.feature.user.model.entity;
 
-public class User {
+public abstract class User {
+    private Long id;
+
+    private String firstName;
+
+    private String lastName;
+
+    private String email;
+
+    private String phone;
 }
