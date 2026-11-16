@@ -14,3 +14,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+logging:
+  file:
+    name: logs/rideflow.log
+  level:
+    root: INFO
+    ma.youcode.rideflow: DEBUG
+    org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver: ERROR
