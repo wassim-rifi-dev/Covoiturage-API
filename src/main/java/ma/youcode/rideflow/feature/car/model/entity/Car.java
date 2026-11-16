@@ -1,9 +1,10 @@
-package ma.youcode.rideflow.feature.driver.model.entity;
+package ma.youcode.rideflow.feature.car.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 
 @Getter
 @Setter
