@@ -33,7 +33,7 @@ public class DriverServiceImpl implements DriverService {
 
         Driver createdDriver = driverRepository.save(driver);
 
-        log.info("Driver user created: driver_id={}" , createdDriver.getId());
+        log.info("Driver user created: driver_id= {}" , createdDriver.getId());
 
         return driverMapper.toResponseDto(createdDriver);
     }
