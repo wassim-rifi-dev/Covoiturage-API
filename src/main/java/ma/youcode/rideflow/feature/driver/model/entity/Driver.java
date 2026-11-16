@@ -12,23 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "drivers")
+@PrimaryKeyJoinColumn(name = "id")
 public class Driver {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
-
-    @Column(unique = true, nullable = false)
-    private String email;
-
-    @Column(unique = true, nullable = false)
-    private String phone;
-
     @Column(name = "license_number", unique = true, nullable = false)
     private String licenseNumber;
 }
