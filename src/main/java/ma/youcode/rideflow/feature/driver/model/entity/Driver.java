@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ma.youcode.rideflow.feature.user.model.entity.User;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "drivers")
 @PrimaryKeyJoinColumn(name = "id")
-public class Driver {
+public class Driver extends User {
     @Column(name = "license_number", unique = true, nullable = false)
     private String licenseNumber;
 }
