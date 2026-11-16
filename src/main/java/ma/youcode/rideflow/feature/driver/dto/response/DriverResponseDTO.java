@@ -1,7 +1,9 @@
 package ma.youcode.rideflow.feature.driver.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
+@Builder
 public record DriverResponseDTO(
         Long id,
 
