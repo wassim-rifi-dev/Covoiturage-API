@@ -6,11 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.service.DriverService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -36,5 +37,15 @@ public class DriverController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(responseDTO);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<PagedModel<DriverResponseDTO>> getAllDrivers(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        log.debug("GET /api/driver page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
+
+        return ResponseEntity.ok(new PagedModel<>(driverService.getAllDrivers(pageable)));
     }
 }
