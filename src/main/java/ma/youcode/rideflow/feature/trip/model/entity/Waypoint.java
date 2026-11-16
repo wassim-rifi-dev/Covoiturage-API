@@ -31,4 +31,8 @@ public class Waypoint {
 
     @Column(name = "price_from_start", nullable = false, precision = 10, scale = 2)
     private BigDecimal priceFromStart;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
 }
