@@ -5,6 +5,8 @@ import lombok.*;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,4 +35,19 @@ public class Trip {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TripStatus status;
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("order ASC")
+    @Builder.Default
+    private List<Waypoint> waypoints = new ArrayList<>();
+
+    public void addWaypoint(Waypoint waypoint) {
+        waypoints.add(waypoint);
+        waypoint.setTrip(this);
+    }
+
+    public void removeWaypoint(Waypoint waypoint) {
+        waypoints.remove(waypoint);
+        waypoint.setTrip(null);
+    }
 }
