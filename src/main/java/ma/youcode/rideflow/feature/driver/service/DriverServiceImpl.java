@@ -10,6 +10,8 @@ import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import ma.youcode.rideflow.feature.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,13 @@ public class DriverServiceImpl implements DriverService {
         log.info("Driver user created: driver_id= {}" , createdDriver.getId());
 
         return driverMapper.toResponseDto(createdDriver);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<DriverResponseDTO> getAllDrivers(Pageable pageable) {
+        return driverRepository.findAll(pageable)
+                .map(driverMapper::toResponseDto);
     }
 
     private void driverExisteByEmail(String email) {
