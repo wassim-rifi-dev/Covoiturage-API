@@ -19,7 +19,7 @@ import java.net.URI;
 public class DriverCarController {
     private final CarService carService;
 
-    @PostMapping("/{id}/car")
+    @PostMapping("/{driverId}/car")
     public ResponseEntity<CarResponseDTO> createCar(
             @PathVariable Long driverId,
             @Valid @RequestBody CreateCarRequestDTO requestDTO
@@ -27,7 +27,7 @@ public class DriverCarController {
         CarResponseDTO responseDTO = carService.createCar(driverId, requestDTO);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/{id}")
+                .path("/api/car/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 
