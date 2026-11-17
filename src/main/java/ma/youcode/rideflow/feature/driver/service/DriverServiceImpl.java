@@ -14,6 +14,7 @@ import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import ma.youcode.rideflow.feature.driver.specification.DriverSpecifications;
 import ma.youcode.rideflow.feature.user.repository.UserRepository;
+import ma.youcode.rideflow.feature.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,7 +28,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private final DriverRepository driverRepository;
 
@@ -36,7 +37,7 @@ public class DriverServiceImpl implements DriverService {
     @Transactional
     @Override
     public DriverResponseDTO createDriver(CreateDriverRequestDTO requestDTO) {
-        driverExisteByEmail(requestDTO.email());
+        userService.userExistByEmail(requestDTO.email());
         driverExisteByLicenseNumber(requestDTO.licenseNumber());
 
         Driver driver = driverMapper.toEntity(requestDTO);
@@ -69,13 +70,8 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Driver not found with id=" + id));
 
-        if (userRepository.existsByEmailAndIdNot(requestDTO.email(), id)) {
-            throw new EmailAlreadyExistsException("Email already existe.");
-        }
-
-        if (driverRepository.existsByLicenseNumberAndIdNot(requestDTO.licenseNumber(), id)) {
-            throw new LicenseNumberAlreadyExistsException("License number already existe.");
-        }
+        userService.userIdNotAndExistByEmail(id, requestDTO.email());
+        driverIdNotAndExistByLisenceNumber(id, requestDTO.licenseNumber());
 
         driverMapper.updateEntity(requestDTO , driver);
 
@@ -96,14 +92,14 @@ public class DriverServiceImpl implements DriverService {
                 .map(driverMapper::toResponseDto);
     }
 
-    private void driverExisteByEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException("Email already existe.");
+    private void driverExisteByLicenseNumber(String licenseNumber) {
+        if (driverRepository.existsByLicenseNumber(licenseNumber)) {
+            throw new LicenseNumberAlreadyExistsException("License number already existe.");
         }
     }
 
-    private void driverExisteByLicenseNumber(String licenseNumber) {
-        if (driverRepository.existsByLicenseNumber(licenseNumber)) {
+    private void driverIdNotAndExistByLisenceNumber(Long id , String licenseNumber) {
+        if (driverRepository.existsByLicenseNumberAndIdNot(licenseNumber, id)) {
             throw new LicenseNumberAlreadyExistsException("License number already existe.");
         }
     }
