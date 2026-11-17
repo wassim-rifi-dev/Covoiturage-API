@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
+import ma.youcode.rideflow.feature.driver.dto.request.DriverSearchCriteria;
 import ma.youcode.rideflow.feature.driver.dto.request.UpdateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.service.DriverService;
@@ -40,16 +41,6 @@ public class DriverController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
-
-    @GetMapping
-    public ResponseEntity<PagedModel<DriverResponseDTO>> getAllDrivers(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
-    ) {
-        log.debug("GET /api/driver page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
-
-        return ResponseEntity.ok(new PagedModel<>(driverService.getAllDrivers(pageable)));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<DriverResponseDTO> getDriverById(@PathVariable Long id) {
         log.debug("Get /api/driver/{}" , id);
@@ -69,5 +60,20 @@ public class DriverController {
         DriverResponseDTO responseDTO = driverService.updateDriver(id , requestDTO);
 
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping
+    public ResponseEntity<PagedModel<DriverResponseDTO>> searchDriver(
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String licenseNumber,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        log.debug("GET /api/driver page={} size={} search", pageable.getPageNumber(), pageable.getPageSize());
+
+        DriverSearchCriteria criteria = new DriverSearchCriteria(fullName, email, phone, licenseNumber);
+
+        return ResponseEntity.ok(new PagedModel<>(driverService.searchDrivers(criteria, pageable)));
     }
 }

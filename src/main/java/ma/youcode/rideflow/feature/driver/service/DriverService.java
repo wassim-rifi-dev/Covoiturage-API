@@ -1,6 +1,7 @@
 package ma.youcode.rideflow.feature.driver.service;
 
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
+import ma.youcode.rideflow.feature.driver.dto.request.DriverSearchCriteria;
 import ma.youcode.rideflow.feature.driver.dto.request.UpdateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import org.springframework.data.domain.Page;
@@ -14,4 +15,6 @@ public interface DriverService {
     DriverResponseDTO getDriverById(Long id);
 
     DriverResponseDTO updateDriver(Long id, UpdateDriverRequestDTO requestDTO);
+
+    Page<DriverResponseDTO> searchDrivers(DriverSearchCriteria criteria, Pageable pageable);
 }

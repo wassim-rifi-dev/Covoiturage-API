@@ -6,16 +6,22 @@ import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
+import ma.youcode.rideflow.feature.driver.dto.request.DriverSearchCriteria;
 import ma.youcode.rideflow.feature.driver.dto.request.UpdateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
+import ma.youcode.rideflow.feature.driver.specification.DriverSpecifications;
 import ma.youcode.rideflow.feature.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -76,6 +82,18 @@ public class DriverServiceImpl implements DriverService {
         Driver upatedDriver = driverRepository.save(driver);
 
         return driverMapper.toResponseDto(upatedDriver);
+    }
+
+    @Override
+    public Page<DriverResponseDTO> searchDrivers(DriverSearchCriteria criteria, Pageable pageable) {
+        Specification<Driver> spec = Specification
+                .where(DriverSpecifications.hasFullName(criteria.fullName()))
+                .and(DriverSpecifications.hasEmail(criteria.email()))
+                .and(DriverSpecifications.hasPhone(criteria.phone()))
+                .and(DriverSpecifications.hasLicenseNumber(criteria.licenseNumber()));
+
+        return driverRepository.findAll(Specification.allOf(spec), pageable)
+                .map(driverMapper::toResponseDto);
     }
 
     private void driverExisteByEmail(String email) {
