@@ -14,6 +14,7 @@ import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import ma.youcode.rideflow.feature.driver.specification.DriverSpecifications;
 import ma.youcode.rideflow.feature.user.repository.UserRepository;
+import ma.youcode.rideflow.feature.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
     private final UserRepository userRepository;
+    private final UserService userService;
 
     private final DriverRepository driverRepository;
 
@@ -36,7 +38,7 @@ public class DriverServiceImpl implements DriverService {
     @Transactional
     @Override
     public DriverResponseDTO createDriver(CreateDriverRequestDTO requestDTO) {
-        driverExisteByEmail(requestDTO.email());
+        userService.userExisteByEmail(requestDTO.email());
         driverExisteByLicenseNumber(requestDTO.licenseNumber());
 
         Driver driver = driverMapper.toEntity(requestDTO);
@@ -94,12 +96,6 @@ public class DriverServiceImpl implements DriverService {
 
         return driverRepository.findAll(Specification.allOf(spec), pageable)
                 .map(driverMapper::toResponseDto);
-    }
-
-    private void driverExisteByEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException("Email already existe.");
-        }
     }
 
     private void driverExisteByLicenseNumber(String licenseNumber) {
