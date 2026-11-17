@@ -4,7 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.passenger.dto.request.CreatePassengeRequestDTO;
+import ma.youcode.rideflow.feature.passenger.dto.request.PassengerSearchCriteria;
 import ma.youcode.rideflow.feature.passenger.dto.request.UpdatePassengerRequestDTO;
+import ma.youcode.rideflow.feature.passenger.specification.PassengerSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import ma.youcode.rideflow.feature.passenger.dto.response.PassengerResponseDTO;
 import ma.youcode.rideflow.feature.passenger.mapper.PassengerMapper;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
@@ -52,5 +57,18 @@ public class PassengerServiceImp implements PassengerService {
         log.info("Passenger user updated: passenger_id= {}", updatedPassenger.getId());
 
         return passengerMapper.toResponseDto(updatedPassenger);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<PassengerResponseDTO> searchPassengers(PassengerSearchCriteria criteria, Pageable pageable) {
+        Specification<Passenger> spec = Specification.allOf(
+                PassengerSpecifications.hasFullName(criteria.fullName()),
+                PassengerSpecifications.hasEmail(criteria.email()),
+                PassengerSpecifications.hasPhone(criteria.phone())
+        );
+
+        return passengerRepository.findAll(spec, pageable)
+                .map(passengerMapper::toResponseDto);
     }
 }
