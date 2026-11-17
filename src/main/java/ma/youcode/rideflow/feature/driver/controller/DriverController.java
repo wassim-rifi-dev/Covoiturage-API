@@ -48,4 +48,13 @@ public class DriverController {
 
         return ResponseEntity.ok(new PagedModel<>(driverService.getAllDrivers(pageable)));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DriverResponseDTO> getDriverById(@PathVariable Long id) {
+        log.debug("Get /api/driver/{}" , id);
+
+        DriverResponseDTO responseDTO = driverService.getDriverById(id);
+
+        return ResponseEntity.ok(responseDTO);
+    }
 }
