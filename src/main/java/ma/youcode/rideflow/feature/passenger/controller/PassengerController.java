@@ -1,15 +1,14 @@
 package ma.youcode.rideflow.feature.passenger.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.feature.passenger.dto.request.CreatePassengeRequestDTO;
+import ma.youcode.rideflow.feature.passenger.dto.request.UpdatePassengerRequestDTO;
 import ma.youcode.rideflow.feature.passenger.dto.response.PassengerResponseDTO;
 import ma.youcode.rideflow.feature.passenger.service.PassengerService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -35,5 +34,17 @@ public class PassengerController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(responseDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PassengerResponseDTO> updatePassenger(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePassengerRequestDTO requestDTO
+    ) {
+        log.debug("PUT /api/passenger/{}", id);
+
+        PassengerResponseDTO responseDTO = passengerService.updatePassenger(id, requestDTO);
+
+        return ResponseEntity.ok(responseDTO);
     }
 }

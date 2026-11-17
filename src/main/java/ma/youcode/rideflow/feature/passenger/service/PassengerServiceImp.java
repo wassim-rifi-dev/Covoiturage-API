@@ -2,7 +2,9 @@ package ma.youcode.rideflow.feature.passenger.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.passenger.dto.request.CreatePassengeRequestDTO;
+import ma.youcode.rideflow.feature.passenger.dto.request.UpdatePassengerRequestDTO;
 import ma.youcode.rideflow.feature.passenger.dto.response.PassengerResponseDTO;
 import ma.youcode.rideflow.feature.passenger.mapper.PassengerMapper;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
@@ -33,5 +35,22 @@ public class PassengerServiceImp implements PassengerService {
         log.info("Passenger user created: passenger_id= {}" , createdPassenger.getId());
 
         return passengerMapper.toResponseDto(createdPassenger);
+    }
+
+    @Transactional
+    @Override
+    public PassengerResponseDTO updatePassenger(Long id, UpdatePassengerRequestDTO requestDTO) {
+        Passenger passenger = passengerRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Passenger not found with id=" + id));
+
+        userService.userIdNotAndExistByEmail(id, requestDTO.email());
+
+        passengerMapper.updateEntity(requestDTO, passenger);
+
+        Passenger updatedPassenger = passengerRepository.save(passenger);
+
+        log.info("Passenger user updated: passenger_id= {}", updatedPassenger.getId());
+
+        return passengerMapper.toResponseDto(updatedPassenger);
     }
 }
