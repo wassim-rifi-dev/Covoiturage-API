@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
+import ma.youcode.rideflow.feature.driver.dto.request.UpdateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.service.DriverService;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,18 @@ public class DriverController {
         log.debug("Get /api/driver/{}" , id);
 
         DriverResponseDTO responseDTO = driverService.getDriverById(id);
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DriverResponseDTO> updateDriver(
+            @PathVariable Long id ,
+            @Valid @RequestBody UpdateDriverRequestDTO requestDTO
+    ) {
+        log.debug("PUT /api/driver/{}", id);
+
+        DriverResponseDTO responseDTO = driverService.updateDriver(id , requestDTO);
 
         return ResponseEntity.ok(responseDTO);
     }

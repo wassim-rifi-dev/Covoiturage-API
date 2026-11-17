@@ -1,10 +1,12 @@
 package ma.youcode.rideflow.feature.driver.mapper;
 
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
+import ma.youcode.rideflow.feature.driver.dto.request.UpdateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface DriverMapper {
@@ -12,4 +14,7 @@ public interface DriverMapper {
 
     @Mapping(target = "id", ignore = true)
     Driver toEntity(CreateDriverRequestDTO createDriverRequestDTO);
+
+    @Mapping(target = "id", ignore = true)
+    void updateEntity(UpdateDriverRequestDTO updateDriverRequestDTO, @MappingTarget Driver driver);
 }
