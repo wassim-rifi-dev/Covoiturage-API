@@ -9,4 +9,6 @@ public interface DriverService {
     DriverResponseDTO createDriver(CreateDriverRequestDTO requestDTO);
 
     Page<DriverResponseDTO> getAllDrivers(Pageable pageable);
+
+    DriverResponseDTO getDriverById(Long id);
 }

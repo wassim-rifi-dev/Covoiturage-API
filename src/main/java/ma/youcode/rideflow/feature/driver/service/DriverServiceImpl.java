@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
+import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.driver.dto.request.CreateDriverRequestDTO;
 import ma.youcode.rideflow.feature.driver.dto.response.DriverResponseDTO;
 import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
@@ -45,6 +46,14 @@ public class DriverServiceImpl implements DriverService {
     public Page<DriverResponseDTO> getAllDrivers(Pageable pageable) {
         return driverRepository.findAll(pageable)
                 .map(driverMapper::toResponseDto);
+    }
+
+    @Override
+    public DriverResponseDTO getDriverById(Long id) {
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Driver not found with id= " + id));
+        
+        return driverMapper.toResponseDto(driver);
     }
 
     private void driverExisteByEmail(String email) {
