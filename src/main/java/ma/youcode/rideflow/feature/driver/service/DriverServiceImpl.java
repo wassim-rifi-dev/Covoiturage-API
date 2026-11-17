@@ -86,25 +86,13 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public Page<DriverResponseDTO> searchDrivers(DriverSearchCriteria criteria, Pageable pageable) {
-        List<Specification<Driver>> specs = new ArrayList<>();
+        Specification<Driver> spec = Specification
+                .where(DriverSpecifications.hasFullName(criteria.fullName()))
+                .and(DriverSpecifications.hasEmail(criteria.email()))
+                .and(DriverSpecifications.hasPhone(criteria.phone()))
+                .and(DriverSpecifications.hasLicenseNumber(criteria.licenseNumber()));
 
-        if (criteria.fullName() != null) {
-            specs.add(DriverSpecifications.hasFullName(criteria.fullName()))
-        }
-
-        if (criteria.email() != null) {
-            specs.add(DriverSpecifications.hasEmail(criteria.email()));
-        }
-
-        if (criteria.phone() != null) {
-            specs.add(DriverSpecifications.hasPhone(criteria.phone()));
-        }
-
-        if (criteria.licenseNumber() != null) {
-            specs.add(DriverSpecifications.hasLicenseNumber(criteria.licenseNumber()));
-        }
-
-        return driverRepository.findAll(Specification.allOf(specs), pageable)
+        return driverRepository.findAll(Specification.allOf(spec), pageable)
                 .map(driverMapper::toResponseDto);
     }
 
