@@ -1,4 +1,4 @@
-package ma.youcode.rideflow.feature.car.controller;
+package ma.youcode.rideflow.feature.driver.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,21 +14,20 @@ import java.net.URI;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/car")
+@RequestMapping("/api/drivers")
 @RequiredArgsConstructor
-public class CarController {
-
+public class DriverCarController {
     private final CarService carService;
 
-    @PostMapping("/{id}")
+    @PostMapping("/{id}/car")
     public ResponseEntity<CarResponseDTO> createCar(
-        @PathVariable Long id,
-        @Valid @RequestBody CreateCarRequestDTO requestDTO
+            @PathVariable Long driverId,
+            @Valid @RequestBody CreateCarRequestDTO requestDTO
     ) {
-        CarResponseDTO responseDTO = carService.createCar(id, requestDTO);
+        CarResponseDTO responseDTO = carService.createCar(driverId, requestDTO);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/cars/{carId}")
+                .path("/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 
