@@ -1,8 +1,13 @@
 package ma.youcode.rideflow.feature.car.service;
 
 import ma.youcode.rideflow.feature.car.dto.request.CreateCarRequestDTO;
+import ma.youcode.rideflow.feature.car.dto.request.UpdateCarRequestDTO;
 import ma.youcode.rideflow.feature.car.dto.response.CarResponseDTO;
 
 public interface CarService {
     public CarResponseDTO createCar(Long driverId , CreateCarRequestDTO requestDTO);
+
+    public CarResponseDTO getCarById(Long id);
+
+    public CarResponseDTO updateCar(Long id, UpdateCarRequestDTO requestDTO);
 }
