@@ -1,11 +1,17 @@
 package ma.youcode.rideflow.feature.passenger.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import ma.youcode.rideflow.feature.passenger.dto.request.CreatePassengeRequestDTO;
+import ma.youcode.rideflow.feature.passenger.dto.response.PassengerResponseDTO;
 import ma.youcode.rideflow.feature.passenger.mapper.PassengerMapper;
+import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.passenger.repository.PassengerRepository;
 import ma.youcode.rideflow.feature.user.service.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PassengerServiceImp implements PassengerService {
@@ -14,4 +20,18 @@ public class PassengerServiceImp implements PassengerService {
     private final PassengerRepository passengerRepository;
 
     private final PassengerMapper passengerMapper;
+
+    @Transactional
+    @Override
+    public PassengerResponseDTO createPassenger(CreatePassengeRequestDTO requestDTO) {
+        userService.userExistByEmail(requestDTO.email());
+
+        Passenger passenger = passengerMapper.toEntity(requestDTO);
+
+        Passenger createdPassenger = passengerRepository.save(passenger);
+
+        log.info("Passenger user created: passenger_id= {}" , createdPassenger.getId());
+
+        return passengerMapper.toResponseDto(createdPassenger);
+    }
 }
