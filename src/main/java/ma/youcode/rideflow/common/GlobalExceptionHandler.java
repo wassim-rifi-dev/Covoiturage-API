@@ -2,6 +2,7 @@ package ma.youcode.rideflow.common;
 
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
+import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +22,20 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Email already exists");
+
+        return problem;
+    }
+
+    @ExceptionHandler(LicenseNumberAlreadyExistsException.class)
+    public ProblemDetail handleLicenseNumberAlreadyExistsException(LicenseNumberAlreadyExistsException exception) {
+        log.warn("409 License number already exists: user creation rejected");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("License number` already exists");
 
         return problem;
     }
