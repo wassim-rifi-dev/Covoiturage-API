@@ -23,6 +23,6 @@ public record CreateCarRequestDTO(
 
         @JsonProperty("passenger_capacity")
         @Min(value = 1, message = "Capacity must be at least 1 passenger")
-        @Max(value = 9, message = "Capacity must not exceed 9 passengers")
+        @Max(value = 8, message = "Capacity must not exceed 9 passengers")
         int passengerCapacity
 ) {}
