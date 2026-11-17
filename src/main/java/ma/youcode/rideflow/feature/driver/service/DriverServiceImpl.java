@@ -51,7 +51,7 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public DriverResponseDTO getDriverById(Long id) {
         Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Driver not found with id= " + id));
+                .orElseThrow(() -> new UserNotFoundException("Driver not found with id=" + id));
 
         return driverMapper.toResponseDto(driver);
     }

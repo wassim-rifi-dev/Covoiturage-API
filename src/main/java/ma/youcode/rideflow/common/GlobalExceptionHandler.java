@@ -3,6 +3,7 @@ package ma.youcode.rideflow.common;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
+import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -67,6 +68,20 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("License number` already exists");
+
+        return problem;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFoundException(UserNotFoundException exception) {
+        log.warn("404 User not found");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        problem.setTitle("User not found");
 
         return problem;
     }
