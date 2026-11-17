@@ -8,13 +8,20 @@ import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.car.dto.request.CreateCarRequestDTO;
 import ma.youcode.rideflow.feature.car.dto.request.UpdateCarRequestDTO;
 import ma.youcode.rideflow.feature.car.dto.response.CarResponseDTO;
+import ma.youcode.rideflow.feature.car.dto.response.CarSummaryResponseDTO;
 import ma.youcode.rideflow.feature.car.mapper.CarMapper;
 import ma.youcode.rideflow.feature.car.model.entity.Car;
 import ma.youcode.rideflow.feature.car.repository.CarRepository;
+import ma.youcode.rideflow.feature.driver.dto.response.DriverCarsResponseDTO;
+import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 
 @Slf4j
 @Service
@@ -25,6 +32,8 @@ public class CarServiceImp implements CarService {
     private final CarMapper carMapper;
 
     private final DriverRepository driverRepository;
+
+    private final DriverMapper driverMapper;
 
     @Override
     @Transactional
@@ -64,6 +73,25 @@ public class CarServiceImp implements CarService {
         Car updatedCar = carRepository.save(car);
 
         return carMapper.toResponseDto(updatedCar);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DriverCarsResponseDTO getCarsByDriverId(Long driverId, Pageable pageable) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver not found with id=" + driverId));
+
+        Page<CarSummaryResponseDTO> cars = carRepository.findAllByDriverId(driverId, pageable)
+                .map(carMapper::toSummaryDto);
+
+        PagedModel.PageMetadata page = new PagedModel.PageMetadata(
+                cars.getSize(),
+                cars.getNumber(),
+                cars.getTotalElements(),
+                cars.getTotalPages()
+        );
+
+        return new DriverCarsResponseDTO(driverMapper.toResponseDto(driver), cars.getContent(), page);
     }
 
     private Car findCarById(Long id) {

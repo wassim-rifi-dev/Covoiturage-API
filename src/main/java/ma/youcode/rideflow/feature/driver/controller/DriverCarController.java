@@ -6,9 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.feature.car.dto.request.CreateCarRequestDTO;
 import ma.youcode.rideflow.feature.car.dto.response.CarResponseDTO;
 import ma.youcode.rideflow.feature.car.service.CarService;
+import ma.youcode.rideflow.feature.driver.dto.response.DriverCarsResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 import java.net.URI;
 
@@ -32,5 +37,15 @@ public class DriverCarController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(responseDTO);
+    }
+
+    @GetMapping("/{driverId}/car")
+    public ResponseEntity<DriverCarsResponseDTO> getCarsByDriverId(
+            @PathVariable Long driverId,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        log.debug("GET /api/drivers/{}/car page={} size={}", driverId, pageable.getPageNumber(), pageable.getPageSize());
+
+        return ResponseEntity.ok(carService.getCarsByDriverId(driverId, pageable));
     }
 }
