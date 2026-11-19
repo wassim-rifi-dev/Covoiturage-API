@@ -6,6 +6,7 @@ import ma.youcode.rideflow.feature.car.model.entity.Car;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,9 @@ public class Trip {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TripStatus status;
+
+    @Column(nullable = false)
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "driver_id", nullable = false)
