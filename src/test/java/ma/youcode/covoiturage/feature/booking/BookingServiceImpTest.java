@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.booking;
 
+import ma.youcode.covoiturage.common.exception.UserNotFoundException;
 import ma.youcode.covoiturage.feature.booking.dto.request.CreateBookingRequestDTO;
 import ma.youcode.covoiturage.feature.booking.dto.response.BookingResponseDTO;
 import ma.youcode.covoiturage.feature.booking.mapper.BookingMapper;
@@ -26,7 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -64,8 +65,7 @@ public class BookingServiceImpTest {
         Long dropoffPointId = 200L;
         int numberOfSeats = 2;
 
-        CreateBookingRequestDTO requestDTO =
-                new CreateBookingRequestDTO(tripId, numberOfSeats, pickupPointId, dropoffPointId);
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(tripId, numberOfSeats, pickupPointId, dropoffPointId);
 
         Passenger passenger = new Passenger();
         passenger.setId(passengerId);
@@ -128,17 +128,18 @@ public class BookingServiceImpTest {
         BookingResponseDTO result = bookingService.createBooking(passengerId, requestDTO);
 
         // Assert
-        assertThat(result).isNotNull();
-        assertThat(result).isEqualTo(expectedResponse);
-        assertThat(result.id()).isEqualTo(1L);
-        assertThat(result.numberOfSeats()).isEqualTo(numberOfSeats);
-        assertThat(result.status()).isEqualTo(BookingStatus.CONFIRMED);
+        assertNotNull(result);
+        assertEquals(result , expectedResponse);
+        assertEquals(1L , result.id());
+        assertEquals(numberOfSeats , result.numberOfSeats());
+        assertEquals(BookingStatus.CONFIRMED , result.status());
 
-        assertThat(booking.getPassenger()).isEqualTo(passenger);
-        assertThat(booking.getTrip()).isEqualTo(trip);
-        assertThat(booking.getPickupPoint()).isEqualTo(pickupPoint);
-        assertThat(booking.getDropoffPoint()).isEqualTo(dropoffPoint);
+        assertEquals(passenger, booking.getPassenger());
+        assertEquals(trip, booking.getTrip());
+        assertEquals(pickupPoint, booking.getPickupPoint());
+        assertEquals(dropoffPoint, booking.getDropoffPoint());
 
+        // Verify
         verify(passengerRepository).findById(passengerId);
         verify(tripRepository).findById(tripId);
         verify(waypointRepository).findById(pickupPointId);
@@ -147,5 +148,30 @@ public class BookingServiceImpTest {
         verify(bookingRepository).save(booking);
         verify(bookingMapper).toResponseDto(savedBooking);
         verify(tripRepository, never()).save(any(Trip.class));
+    }
+
+    @Test
+    @DisplayName("Should throw an UserNotFoundException when passenger not exist")
+    void createBooking_shouldThrowUserNotFoundException_whenPassengerNotFound() {
+        // Arrange
+        Long passengerId = 999L;
+
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(10L, 2, 100L, 200L);
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.empty());
+
+        // Act
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> bookingService.createBooking(passengerId , requestDTO)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Passenger not exist with id=" + passengerId , exception.getMessage());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verifyNoInteractions(tripRepository, waypointRepository, bookingMapper, bookingRepository);
     }
 }
