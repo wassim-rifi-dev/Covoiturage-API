@@ -16,7 +16,6 @@ import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.passenger.repository.PassengerRepository;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
-import ma.youcode.rideflow.feature.trip.mapper.WaypointMapper;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
@@ -69,7 +68,7 @@ public class BookingServiceImp implements BookingService {
     @Override
     @Transactional
     public void annulerBooking(Long passengerId , Long bookingId) {
-        Passenger passenger = passengerExist(passengerId);
+        passengerExist(passengerId);
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("Booking not exist with id=" + bookingId));
@@ -104,9 +103,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     private Passenger passengerExist(Long passengerId) {
-        Passenger passenger = passengerRepository.findById(passengerId)
+        return passengerRepository.findById(passengerId)
                 .orElseThrow(() -> new UserNotFoundException("Passenger not exist with id=" + passengerId));
-
-        return passenger;
     }
 }

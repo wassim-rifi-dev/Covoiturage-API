@@ -35,4 +35,13 @@ public class PassengerBookingController {
 
         return ResponseEntity.created(uri).body(responseDTO);
     }
+
+    @PatchMapping("/{passengerId}/bookings/{bookingId}/cancel")
+    public ResponseEntity<Void> cancelBooking(@PathVariable Long passengerId , @PathVariable Long bookingId) {
+        log.warn("PATCH /api/passengers/{}/bookings/{}/cancel", passengerId, bookingId);
+
+        bookingService.annulerBooking(passengerId, bookingId);
+
+        return ResponseEntity.noContent().build();
+    }
 }
