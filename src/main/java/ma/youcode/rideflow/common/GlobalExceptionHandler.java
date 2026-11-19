@@ -5,6 +5,7 @@ import ma.youcode.rideflow.common.exception.CarNotFoundException;
 import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
+import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -98,6 +99,20 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Car not found.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(TripNotFoundException.class)
+    public ProblemDetail handleTripNotFoundException(TripNotFoundException exception) {
+        log.warn("404 trip not found");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Trip not found.");
 
         return problem;
     }
