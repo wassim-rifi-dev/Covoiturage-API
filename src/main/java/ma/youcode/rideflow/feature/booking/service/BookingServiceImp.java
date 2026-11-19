@@ -9,6 +9,7 @@ import ma.youcode.rideflow.feature.booking.dto.response.BookingResponseDTO;
 import ma.youcode.rideflow.feature.booking.exception.BookingCancellationDeadlineExceededException;
 import ma.youcode.rideflow.feature.booking.exception.BookingDoesNotBelongToPassengerException;
 import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
+import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsException;
 import ma.youcode.rideflow.feature.booking.mapper.BookingMapper;
 import ma.youcode.rideflow.feature.booking.model.entity.Booking;
 import ma.youcode.rideflow.feature.booking.repository.BookingRepository;
@@ -55,6 +56,10 @@ public class BookingServiceImp implements BookingService {
                 .orElseThrow(() -> new WaypointNotFoundException("Waypoint not exist with id=" + requestDTO.dropoffPointId()));
 
         tripIsBookable(trip);
+
+        if (trip.getRemainingSeats() < requestDTO.numberOfSeats()) {
+            throw new NotEnoughAvailableSeatsException("Not enough available seats for this trip.");
+        }
 
         Booking booking = bookingMapper.toEntity(requestDTO);
         booking.setPassenger(passenger);
