@@ -43,6 +43,21 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    // 500
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUnexpectedException(Exception exception) {
+        log.error("Unexpected error occurred", exception);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred. Please try again later."
+        );
+
+        problem.setTitle("Internal Server Error");
+
+        return problem;
+    }
+
     // 404
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFoundException(UserNotFoundException exception) {
