@@ -1,0 +1,40 @@
+package ma.youcode.covoiturage.feature.car.model.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.*;
+import ma.youcode.covoiturage.feature.driver.model.entity.Driver;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "cars")
+public class Car {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String brand;
+
+    @Column(nullable = false)
+    private String model;
+
+    @Column(name = "license_plate", unique = true, nullable = false)
+    private String licensePlate;
+
+    private String color;
+
+    @Min(1)
+    @Max(8)
+    @Column(name = "passenger_capacity")
+    private int passengerCapacity;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "driver_id", nullable = false)
+    private Driver driver;
+}

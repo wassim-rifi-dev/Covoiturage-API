@@ -20,4 +20,4 @@ logging:
     name: logs/rideflow.log
   level:
     root: INFO
-    ma.youcode.rideflow: DEBUG
+    ma.youcode.covoiturage: DEBUG

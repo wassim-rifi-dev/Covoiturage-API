@@ -9,8 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ma.youcode</groupId>
-	<artifactId>rideflow</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>covoiturage-api</artifactId>
+	<version>1.0.0</version>
 	<name/>
 	<description/>
 	<url/>
