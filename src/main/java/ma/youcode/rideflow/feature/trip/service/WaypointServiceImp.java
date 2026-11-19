@@ -29,9 +29,14 @@ public class WaypointServiceImp implements WaypointService {
 
     @Override
     public void waypointsWithinTrip(CreateTripRequestDTO requestDTO) {
+        if (!requestDTO.arrivalDateTime().isAfter(requestDTO.departureDateTime())) {
+            throw new InvalidTripTimeException("Arrival date and time must be after departure date and time.");
+        }
+
         for (WaypointRequestDTO waypoint : sortIntermediateWaypoints(requestDTO)) {
             if (
                     !waypoint.passageTime().isAfter(requestDTO.departureDateTime())
+                            || !waypoint.passageTime().isBefore(requestDTO.arrivalDateTime())
             ) {
                 throw new InvalidTripTimeException(
                         "Waypoint '" + waypoint.city() + "' passage time must be between departure and arrival."

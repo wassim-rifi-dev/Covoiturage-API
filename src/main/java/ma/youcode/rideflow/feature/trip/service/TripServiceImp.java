@@ -106,6 +106,7 @@ public class TripServiceImp implements TripService {
         trip.addWaypoint(Waypoint.builder()
                 .city(requestDTO.arrivalCity())
                 .order(order)
+                .passageTime(requestDTO.arrivalDateTime())
                 .priceFromStart(requestDTO.price())
                 .build());
     }

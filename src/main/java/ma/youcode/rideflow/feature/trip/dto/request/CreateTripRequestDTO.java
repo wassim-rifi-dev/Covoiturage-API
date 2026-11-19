@@ -24,6 +24,11 @@ public record CreateTripRequestDTO(
         @Future(message = "Departure date and time must be in the future")
         LocalDateTime departureDateTime,
 
+        @JsonProperty("arrival_date_time")
+        @NotNull(message = "Arrival date and time is required")
+        @Future(message = "Arrival date and time must be in the future")
+        LocalDateTime arrivalDateTime,
+
         @NotNull(message = "Price is required")
         @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
         @Digits(integer = 8, fraction = 2, message = "Price must have at most 8 digits and 2 decimals")
