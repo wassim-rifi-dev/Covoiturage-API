@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -39,6 +38,8 @@ public class TripServiceImp implements TripService {
 
     private final CarRepository carRepository;
 
+    private final WaypointService waypointService;
+
     @Override
     @Transactional
     public TripResponseDTO createTrip(Long driverId, CreateTripRequestDTO requestDTO) {
@@ -50,8 +51,7 @@ public class TripServiceImp implements TripService {
 
         carBelongsToDriver(car, driverId);
         seatsWithinCarCapacity(requestDTO.proposedSeats(), car);
-
-        waypointsWithinTrip(requestDTO);
+        waypointService.waypointsWithinTrip(requestDTO);
 
         Trip trip = tripMapper.toEntity(requestDTO);
         trip.setDriver(driver);
@@ -87,24 +87,6 @@ public class TripServiceImp implements TripService {
         }
     }
 
-    private void waypointsWithinTrip(CreateTripRequestDTO requestDTO) {
-        for (WaypointRequestDTO waypoint : sortIntermediateWaypoints(requestDTO)) {
-            if (
-                    !waypoint.passageTime().isAfter(requestDTO.departureDateTime())
-            ) {
-                throw new InvalidTripTimeException(
-                        "Waypoint '" + waypoint.city() + "' passage time must be between departure and arrival."
-                );
-            }
-
-            if (waypoint.priceFromStart().compareTo(requestDTO.price()) > 0) {
-                throw new InvalidTripPriceException(
-                        "Waypoint '" + waypoint.city() + "' price must not exceed the trip price."
-                );
-            }
-        }
-    }
-
     private void buildRoute(Trip trip, CreateTripRequestDTO requestDTO) {
         trip.addWaypoint(Waypoint.builder()
                 .city(requestDTO.departureCity())
@@ -113,7 +95,7 @@ public class TripServiceImp implements TripService {
                 .priceFromStart(BigDecimal.ZERO)
                 .build());
 
-        List<Waypoint> waypointsIntermediates = waypointMapper.toEntityList(sortIntermediateWaypoints(requestDTO));
+        List<Waypoint> waypointsIntermediates = waypointMapper.toEntityList(waypointService.sortIntermediateWaypoints(requestDTO));
 
         int order = 1;
         for (Waypoint waypoint : waypointsIntermediates) {
@@ -126,15 +108,5 @@ public class TripServiceImp implements TripService {
                 .order(order)
                 .priceFromStart(requestDTO.price())
                 .build());
-    }
-
-    private List<WaypointRequestDTO> sortIntermediateWaypoints(CreateTripRequestDTO requestDTO) {
-        if (requestDTO.waypoints() == null) {
-            return List.of();
-        }
-
-        return requestDTO.waypoints().stream()
-                .sorted(Comparator.comparing(WaypointRequestDTO::passageTime))
-                .toList();
     }
 }
