@@ -17,4 +17,6 @@ public interface TripService {
     public TripResponseDTO getTripById(Long id);
 
     public void cancelTrip(Long driverId , Long tripId);
+
+    public void completTrip(Long driverId , Long tripId);
 }

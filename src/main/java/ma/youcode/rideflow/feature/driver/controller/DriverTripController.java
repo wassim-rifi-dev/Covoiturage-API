@@ -45,4 +45,15 @@ public class DriverTripController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{driverId}/trips/{tripId}/complet")
+    public ResponseEntity<Void> completTrip(
+            @PathVariable Long driverId,
+            @PathVariable Long tripId
+    ) {
+
+        tripService.completTrip(driverId, tripId);
+
+        return ResponseEntity.noContent().build();
+    }
 }
