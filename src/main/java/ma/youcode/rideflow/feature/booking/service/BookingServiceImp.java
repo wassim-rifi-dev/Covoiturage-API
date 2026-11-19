@@ -68,7 +68,7 @@ public class BookingServiceImp implements BookingService {
         booking.setDropoffPoint(dropoffPoint);
 
         if (trip.getRemainingSeats() == 0) {
-            trip.setStatus(TripStatus.COMPLETED);
+            trip.setStatus(TripStatus.FULL);
 
             tripRepository.save(trip);
         }
