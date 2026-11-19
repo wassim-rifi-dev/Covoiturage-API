@@ -6,12 +6,10 @@ import ma.youcode.rideflow.common.exception.TripNotBookableException;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.booking.dto.request.CreateBookingRequestDTO;
 import ma.youcode.rideflow.feature.booking.dto.response.BookingResponseDTO;
-import ma.youcode.rideflow.feature.booking.exception.BookingCancellationDeadlineExceededException;
-import ma.youcode.rideflow.feature.booking.exception.BookingDoesNotBelongToPassengerException;
-import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
-import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsException;
+import ma.youcode.rideflow.feature.booking.exception.*;
 import ma.youcode.rideflow.feature.booking.mapper.BookingMapper;
 import ma.youcode.rideflow.feature.booking.model.entity.Booking;
+import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.booking.repository.BookingRepository;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
@@ -93,6 +91,10 @@ public class BookingServiceImp implements BookingService {
 
         if (!booking.getPassenger().getId().equals(passengerId)) {
             throw new BookingDoesNotBelongToPassengerException("This booking not accesible for this passenger.");
+        }
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BookingAlreadyCancelledException("Booking is already cancelled");
         }
 
         if (!booking.isCancellable()) {

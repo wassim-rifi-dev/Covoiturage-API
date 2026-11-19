@@ -76,10 +76,6 @@ public class Booking {
     }
 
     public void cancel() {
-        if (status == BookingStatus.CANCELLED) {
-            throw new BookingAlreadyCancelledException("Booking is already cancelled");
-        }
-
         this.status = BookingStatus.CANCELLED;
     }
 }
