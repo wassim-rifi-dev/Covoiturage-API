@@ -2,6 +2,7 @@ package ma.youcode.rideflow.feature.car.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ma.youcode.rideflow.common.exception.CarHasTripException;
 import ma.youcode.rideflow.common.exception.CarNotFoundException;
 import ma.youcode.rideflow.common.exception.LicensePlateAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
@@ -16,6 +17,7 @@ import ma.youcode.rideflow.feature.driver.dto.response.DriverCarsResponseDTO;
 import ma.youcode.rideflow.feature.driver.mapper.DriverMapper;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
+import ma.youcode.rideflow.feature.trip.service.TripService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,8 @@ public class CarServiceImp implements CarService {
     private final DriverRepository driverRepository;
 
     private final DriverMapper driverMapper;
+
+    private final TripService tripService;
 
     @Override
     @Transactional
@@ -98,6 +102,8 @@ public class CarServiceImp implements CarService {
     public void deleteCar(Long id) {
         Car car = findCarById(id);
 
+        carHasTrip(car);
+
         carRepository.delete(car);
     }
 
@@ -109,6 +115,12 @@ public class CarServiceImp implements CarService {
     private void carExistByLicensePlate(String licensePlate) {
         if (carRepository.existsByLicensePlate(licensePlate)) {
             throw new LicensePlateAlreadyExistsException("License plate already exists.");
+        }
+    }
+
+    private void carHasTrip(Car car) {
+        if (tripService.tripExistByCarAndStatuNotIn(car)) {
+            throw new CarHasTripException("This car has a trip.");
         }
     }
 }
