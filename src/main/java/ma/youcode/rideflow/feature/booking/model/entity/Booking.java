@@ -2,7 +2,6 @@ package ma.youcode.rideflow.feature.booking.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ma.youcode.rideflow.feature.booking.exception.BookingAlreadyCancelledException;
 import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
