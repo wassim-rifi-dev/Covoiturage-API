@@ -2,8 +2,10 @@ package ma.youcode.rideflow.common;
 
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.*;
+import ma.youcode.rideflow.feature.booking.exception.BookingDoesNotBelongToPassengerException;
 import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
 import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsException;
+import ma.youcode.rideflow.feature.trip.exception.DriverNotAuthorizedForTripException;
 import ma.youcode.rideflow.feature.trip.exception.InvalidTripStatusException;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
@@ -212,6 +214,49 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Invalid trip status.");
+
+        return problem;
+    }
+
+    // 403
+    @ExceptionHandler(DriverNotAuthorizedForTripException.class)
+    public ProblemDetail handleDriverNotAuthorizedForTripException(DriverNotAuthorizedForTripException exception) {
+        log.warn("403 Driver not authorized for trip.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Driver not authorized for trip.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(CarDoesNotBelongToDriverException.class)
+    public ProblemDetail handleCarDoesNotBelongToDriverException(CarDoesNotBelongToDriverException exception) {
+        log.warn("403 Car does not belong to driver.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Car does not belong to driver.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(BookingDoesNotBelongToPassengerException.class)
+    public ProblemDetail handleBookingDoesNotBelongToPassengerException(BookingDoesNotBelongToPassengerException exception) {
+        log.warn("403 Booking does not belong to passenger.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Booking does not belong to passenger.");
 
         return problem;
     }
