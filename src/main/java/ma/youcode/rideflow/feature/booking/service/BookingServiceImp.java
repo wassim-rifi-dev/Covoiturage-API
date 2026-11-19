@@ -67,6 +67,12 @@ public class BookingServiceImp implements BookingService {
         booking.setPickupPoint(pickupPoint);
         booking.setDropoffPoint(dropoffPoint);
 
+        if (trip.getRemainingSeats() == 0) {
+            trip.setStatus(TripStatus.COMPLETED);
+
+            tripRepository.save(trip);
+        }
+
         Booking createdBooking = bookingRepository.save(booking);
 
         return bookingMapper.toResponseDto(createdBooking);
