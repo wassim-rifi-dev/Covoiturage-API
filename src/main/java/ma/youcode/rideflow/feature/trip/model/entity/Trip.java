@@ -2,8 +2,12 @@ package ma.youcode.rideflow.feature.trip.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ma.youcode.rideflow.feature.booking.model.entity.Booking;
+import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.car.model.entity.Car;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
+import ma.youcode.rideflow.feature.trip.exception.InvalidTripStatusException;
+import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
 import java.math.BigDecimal;
@@ -55,6 +59,10 @@ public class Trip {
     @Builder.Default
     private List<Waypoint> waypoints = new ArrayList<>();
 
+    @OneToMany(mappedBy = "trip")
+    @Builder.Default
+    private List<Booking> bookings = new ArrayList<>();
+
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
         waypoint.setTrip(this);
@@ -63,5 +71,52 @@ public class Trip {
     public void removeWaypoint(Waypoint waypoint) {
         waypoints.remove(waypoint);
         waypoint.setTrip(null);
+    }
+
+    public int getRemainingSeats() {
+        int bookedSeats = bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.CONFIRMED)
+                .mapToInt(Booking::getNumberOfSeats)
+                .sum();
+
+        return proposedSeats - bookedSeats;
+    }
+
+    public boolean isBookable() {
+        return status == TripStatus.PUBLISHED
+                && departureDateTime.isAfter(LocalDateTime.now())
+                && getRemainingSeats() > 0;
+    }
+
+    public Waypoint findWaypoint(String city) {
+        return waypoints.stream()
+                .filter(waypoint -> waypoint.getCity().equalsIgnoreCase(city.trim()))
+                .findFirst()
+                .orElseThrow(() -> new WaypointNotFoundException(
+                        "No stop point found in city '" + city + "' for trip " + id
+                ));
+    }
+
+    public void complete() {
+        if (status != TripStatus.PUBLISHED && status != TripStatus.FULL) {
+            throw new InvalidTripStatusException(
+                    "Trip " + id + " cannot be completed from status " + status
+            );
+        }
+        status = TripStatus.COMPLETED;
+    }
+
+    public void cancel() {
+        if (status == TripStatus.COMPLETED || status == TripStatus.CANCELLED) {
+            throw new InvalidTripStatusException(
+                    "Trip " + id + " cannot be cancelled from status " + status
+            );
+        }
+
+        status = TripStatus.CANCELLED;
+
+        bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.CONFIRMED)
+                .forEach(booking -> booking.setStatus(BookingStatus.CANCELLED));
     }
 }
