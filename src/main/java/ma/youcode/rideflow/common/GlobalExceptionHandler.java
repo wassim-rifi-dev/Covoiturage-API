@@ -5,8 +5,14 @@ import ma.youcode.rideflow.common.exception.*;
 import ma.youcode.rideflow.feature.booking.exception.BookingDoesNotBelongToPassengerException;
 import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
 import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsException;
+import ma.youcode.rideflow.feature.trip.exception.DepartureDateTimeMustBeInFutureException;
 import ma.youcode.rideflow.feature.trip.exception.DriverNotAuthorizedForTripException;
+import ma.youcode.rideflow.feature.trip.exception.DuplicateWaypointCityException;
+import ma.youcode.rideflow.feature.trip.exception.InsufficientWaypointsException;
+import ma.youcode.rideflow.feature.trip.exception.InvalidTripPriceException;
 import ma.youcode.rideflow.feature.trip.exception.InvalidTripStatusException;
+import ma.youcode.rideflow.feature.trip.exception.InvalidTripTimeException;
+import ma.youcode.rideflow.feature.trip.exception.InvalidWaypointPriceException;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -257,6 +263,105 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Booking does not belong to passenger.");
+
+        return problem;
+    }
+
+    // 400
+    @ExceptionHandler(DepartureDateTimeMustBeInFutureException.class)
+    public ProblemDetail handleDepartureDateTimeMustBeInFutureException(DepartureDateTimeMustBeInFutureException exception) {
+        log.warn("400 Departure date time must be in future.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Departure date time must be in future.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(InsufficientWaypointsException.class)
+    public ProblemDetail handleInsufficientWaypointsException(InsufficientWaypointsException exception) {
+        log.warn("400 Insufficient waypoints.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Insufficient waypoints.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(SeatsExceedCarCapacityException.class)
+    public ProblemDetail handleSeatsExceedCarCapacityException(SeatsExceedCarCapacityException exception) {
+        log.warn("400 Seats exceed car capacity.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Seats exceed car capacity.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(DuplicateWaypointCityException.class)
+    public ProblemDetail handleDuplicateWaypointCityException(DuplicateWaypointCityException exception) {
+        log.warn("400 Duplicate waypoint city.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Duplicate waypoint city.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidWaypointPriceException.class)
+    public ProblemDetail handleInvalidWaypointPriceException(InvalidWaypointPriceException exception) {
+        log.warn("400 Invalid waypoint price.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Invalid waypoint price.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidTripTimeException.class)
+    public ProblemDetail handleInvalidTripTimeException(InvalidTripTimeException exception) {
+        log.warn("400 Invalid trip time.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Invalid trip time.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidTripPriceException.class)
+    public ProblemDetail handleInvalidTripPriceException(InvalidTripPriceException exception) {
+        log.warn("400 Invalid trip price.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Invalid trip price.");
 
         return problem;
     }
