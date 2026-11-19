@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "bookings")
 public class Booking {
+    public static final long CANCELLATION_DEADLINE_HOURS = 24;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,5 +53,23 @@ public class Booking {
     @JoinColumn(name = "dropoff_point_id", nullable = false)
     private Waypoint dropoffPoint;
 
+    public BigDecimal getSegmentPrice() {
+        return dropoffPoint.getPriceFromStart().subtract(pickupPoint.getPriceFromStart());
+    }
 
+    public BigDecimal calculateTotalAmount() {
+        return getSegmentPrice().multiply(BigDecimal.valueOf(numberOfSeats));
+    }
+
+    public boolean isCancellable(LocalDateTime now) {
+        return status == BookingStatus.CONFIRMED
+                && now.isBefore(pickupPoint.getPassageTime().minusHours(CANCELLATION_DEADLINE_HOURS));
+    }
+
+    public void cancel() {
+        if (status == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking is already cancelled");
+        }
+        this.status = BookingStatus.CANCELLED;
+    }
 }
