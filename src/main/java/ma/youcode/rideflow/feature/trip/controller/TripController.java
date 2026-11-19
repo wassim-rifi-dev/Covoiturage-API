@@ -11,10 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,5 +40,14 @@ public class TripController {
         );
 
         return ResponseEntity.ok(new PagedModel<>(tripService.searchTrips(criteria, pageable)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TripResponseDTO> getTripById(@PathVariable Long id) {
+        log.warn("GET /api/trips/{}", id);
+
+        TripResponseDTO responseDTO = tripService.getTripById(id);
+
+        return ResponseEntity.ok(responseDTO);
     }
 }

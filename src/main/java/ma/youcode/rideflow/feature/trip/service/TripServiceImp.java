@@ -13,6 +13,7 @@ import ma.youcode.rideflow.feature.trip.dto.request.WaypointRequestDTO;
 import ma.youcode.rideflow.feature.trip.dto.response.TripResponseDTO;
 import ma.youcode.rideflow.feature.trip.exception.InvalidTripPriceException;
 import ma.youcode.rideflow.feature.trip.exception.InvalidTripTimeException;
+import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.mapper.TripMapper;
 import ma.youcode.rideflow.feature.trip.mapper.WaypointMapper;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
@@ -91,6 +92,14 @@ public class TripServiceImp implements TripService {
 
         return tripRepository.findAll(spec, pageable)
                 .map(tripMapper::toResponseDto);
+    }
+
+    @Override
+    public TripResponseDTO getTripById(Long id) {
+        Trip trip = tripRepository.findById(id)
+                .orElseThrow(() -> new TripNotFoundException("Trip not existe with id=" + id));
+
+        return tripMapper.toResponseDto(trip);
     }
 
     private void carBelongsToDriver(Car car, Long driverId) {

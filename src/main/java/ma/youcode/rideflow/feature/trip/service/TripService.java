@@ -13,4 +13,6 @@ public interface TripService {
     public boolean tripExistByCarAndStatuNotIn(Car car);
 
     public Page<TripResponseDTO> searchTrips(TripSearchCriteria criteria, Pageable pageable);
+
+    public TripResponseDTO getTripById(Long id);
 }
