@@ -34,4 +34,26 @@ public class DriverTripController {
 
         return ResponseEntity.created(uri).body(responseDTO);
     }
+
+    @PatchMapping("/{driverId}/trips/{tripId}/cancel")
+    public ResponseEntity<Void> cancelTrip(
+            @PathVariable Long driverId,
+            @PathVariable Long tripId
+    ) {
+
+        tripService.cancelTrip(driverId, tripId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{driverId}/trips/{tripId}/complet")
+    public ResponseEntity<Void> completTrip(
+            @PathVariable Long driverId,
+            @PathVariable Long tripId
+    ) {
+
+        tripService.completTrip(driverId, tripId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

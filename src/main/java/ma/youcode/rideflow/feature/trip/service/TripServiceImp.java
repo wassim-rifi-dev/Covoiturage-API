@@ -11,9 +11,7 @@ import ma.youcode.rideflow.feature.trip.dto.request.CreateTripRequestDTO;
 import ma.youcode.rideflow.feature.trip.dto.request.TripSearchCriteria;
 import ma.youcode.rideflow.feature.trip.dto.request.WaypointRequestDTO;
 import ma.youcode.rideflow.feature.trip.dto.response.TripResponseDTO;
-import ma.youcode.rideflow.feature.trip.exception.InvalidTripPriceException;
-import ma.youcode.rideflow.feature.trip.exception.InvalidTripTimeException;
-import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
+import ma.youcode.rideflow.feature.trip.exception.*;
 import ma.youcode.rideflow.feature.trip.mapper.TripMapper;
 import ma.youcode.rideflow.feature.trip.mapper.WaypointMapper;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
@@ -109,6 +107,42 @@ public class TripServiceImp implements TripService {
                 .orElseThrow(() -> new TripNotFoundException("Trip not existe with id=" + id));
 
         return tripMapper.toResponseDto(trip);
+    }
+
+    @Override
+    @Transactional
+    public void cancelTrip(Long driverId , Long tripId) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver not exist with id=" + driverId));
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException("Trip not exist with id=" + tripId));
+
+        if (trip.getDriver().getId().equals(driver.getId())) {
+            throw new DriverNotAuthorizedForTripException("This driver don't have permission to trip with id=" + tripId);
+        }
+
+        trip.cancel();
+
+        tripRepository.save(trip);
+    }
+
+    @Override
+    @Transactional
+    public void completTrip(Long driverId, Long tripId) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver not exist with id=" + driverId));
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException("Trip not exist with id=" + tripId));
+
+        if (trip.getDriver().getId().equals(driver.getId())) {
+            throw new DriverNotAuthorizedForTripException("This driver don't have permission to trip with id=" + tripId);
+        }
+
+        trip.complete();
+
+        tripRepository.save(trip);
     }
 
     private void carBelongsToDriver(Car car, Long driverId) {

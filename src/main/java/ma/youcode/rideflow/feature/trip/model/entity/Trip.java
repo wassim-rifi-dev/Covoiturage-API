@@ -103,6 +103,7 @@ public class Trip {
                     "Trip " + id + " cannot be completed from status " + status
             );
         }
+
         status = TripStatus.COMPLETED;
     }
 
