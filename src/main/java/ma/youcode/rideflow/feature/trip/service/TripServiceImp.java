@@ -8,6 +8,7 @@ import ma.youcode.rideflow.feature.car.repository.CarRepository;
 import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import ma.youcode.rideflow.feature.trip.dto.request.CreateTripRequestDTO;
+import ma.youcode.rideflow.feature.trip.dto.request.TripSearchCriteria;
 import ma.youcode.rideflow.feature.trip.dto.request.WaypointRequestDTO;
 import ma.youcode.rideflow.feature.trip.dto.response.TripResponseDTO;
 import ma.youcode.rideflow.feature.trip.exception.InvalidTripPriceException;
@@ -18,6 +19,10 @@ import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 import ma.youcode.rideflow.feature.trip.repository.TripRepository;
+import ma.youcode.rideflow.feature.trip.specification.TripSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +76,21 @@ public class TripServiceImp implements TripService {
                 car,
                 List.of(TripStatus.COMPLETED, TripStatus.CANCELLED)
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TripResponseDTO> searchTrips(TripSearchCriteria criteria, Pageable pageable) {
+        Specification<Trip> spec = Specification
+                .where(TripSpecification.hasDepartureCity(criteria.departureCity()))
+                .and(TripSpecification.hasArrivalCity(criteria.arrivalCity()))
+                .and(TripSpecification.hasDepartureDate(criteria.departureDate()))
+                .and(TripSpecification.hasMaxPrice(criteria.maxPrice()))
+                .and(TripSpecification.hasMinSeats(criteria.minSeats()))
+                .and(TripSpecification.hasWaypointCity(criteria.waypointCity()));
+
+        return tripRepository.findAll(spec, pageable)
+                .map(tripMapper::toResponseDto);
     }
 
     private void carBelongsToDriver(Car car, Long driverId) {
