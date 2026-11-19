@@ -6,6 +6,7 @@ import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
+import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "bookings")
 public class Booking {
+    public static final long CANCELLATION_DEADLINE_HOURS = 24;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -50,4 +53,33 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dropoff_point_id", nullable = false)
     private Waypoint dropoffPoint;
+
+    @PrePersist
+    protected void onCreate() {
+        this.bookingDate = LocalDateTime.now();
+        this.status = BookingStatus.CONFIRMED;
+        this.totalAmount = calculateTotalAmount();
+
+    }
+
+    public BigDecimal getSegmentPrice() {
+        return dropoffPoint.getPriceFromStart().subtract(pickupPoint.getPriceFromStart());
+    }
+
+    public BigDecimal calculateTotalAmount() {
+        return getSegmentPrice().multiply(BigDecimal.valueOf(numberOfSeats));
+    }
+
+    public boolean isCancellable() {
+        return status == BookingStatus.CONFIRMED
+                && LocalDateTime.now().isBefore(pickupPoint.getPassageTime().minusHours(CANCELLATION_DEADLINE_HOURS));
+    }
+
+    public void cancel() {
+        if (status == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking is already cancelled");
+        }
+
+        this.status = BookingStatus.CANCELLED;
+    }
 }
