@@ -50,4 +50,6 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dropoff_point_id", nullable = false)
     private Waypoint dropoffPoint;
+
+
 }
