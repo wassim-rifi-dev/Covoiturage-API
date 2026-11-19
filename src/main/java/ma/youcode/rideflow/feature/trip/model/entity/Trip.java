@@ -88,7 +88,7 @@ public class Trip {
                 && getRemainingSeats() > 0;
     }
 
-    public Waypoint findStopPoint(String city) {
+    public Waypoint findWaypoint(String city) {
         return waypoints.stream()
                 .filter(waypoint -> waypoint.getCity().equalsIgnoreCase(city.trim()))
                 .findFirst()
