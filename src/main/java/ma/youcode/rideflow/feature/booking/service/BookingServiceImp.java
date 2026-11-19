@@ -13,6 +13,8 @@ import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsExce
 import ma.youcode.rideflow.feature.booking.mapper.BookingMapper;
 import ma.youcode.rideflow.feature.booking.model.entity.Booking;
 import ma.youcode.rideflow.feature.booking.repository.BookingRepository;
+import ma.youcode.rideflow.feature.driver.model.entity.Driver;
+import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.passenger.repository.PassengerRepository;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
@@ -40,6 +42,8 @@ public class BookingServiceImp implements BookingService {
     private final TripRepository tripRepository;
 
     private final WaypointRepository waypointRepository;
+
+    private final DriverRepository driverRepository;
 
     @Override
     @Transactional
@@ -116,6 +120,14 @@ public class BookingServiceImp implements BookingService {
                 .map(bookingMapper::toResponseDto);
     }
 
+    @Override
+    public Page<BookingResponseDTO> getDriverBooking(Long driverId, Pageable pageable) {
+        driverExist(driverId);
+
+        return bookingRepository.findAllByDriverId(driverId, pageable)
+                .map(bookingMapper::toResponseDto);
+    }
+
     private void tripIsBookable(Trip trip) {
         if (!trip.isBookable()) {
             throw new TripNotBookableException("This trip is bookable.");
@@ -125,5 +137,10 @@ public class BookingServiceImp implements BookingService {
     private Passenger passengerExist(Long passengerId) {
         return passengerRepository.findById(passengerId)
                 .orElseThrow(() -> new UserNotFoundException("Passenger not exist with id=" + passengerId));
+    }
+
+    private Driver driverExist(Long driverId) {
+        return driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Passenger not exist with id=" + driverId));
     }
 }

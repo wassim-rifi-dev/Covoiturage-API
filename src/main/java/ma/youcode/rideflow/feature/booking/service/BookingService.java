@@ -11,4 +11,6 @@ public interface BookingService {
     public void annulerBooking(Long passengerId, Long bookingId);
 
     public Page<BookingResponseDTO> getPassengerBooking(Long passengerId , Pageable pageable);
+
+    public Page<BookingResponseDTO> getDriverBooking(Long driverId , Pageable pageable);
 }
