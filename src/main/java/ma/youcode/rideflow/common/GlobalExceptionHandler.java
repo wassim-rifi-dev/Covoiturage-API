@@ -3,6 +3,8 @@ package ma.youcode.rideflow.common;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.*;
 import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
+import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsException;
+import ma.youcode.rideflow.feature.trip.exception.InvalidTripStatusException;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -44,34 +46,7 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException exception) {
-        log.warn("409 Email already exists: user creation rejected");
-
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                exception.getMessage()
-        );
-
-        problem.setTitle("Email already exists");
-
-        return problem;
-    }
-
-    @ExceptionHandler(LicenseNumberAlreadyExistsException.class)
-    public ProblemDetail handleLicenseNumberAlreadyExistsException(LicenseNumberAlreadyExistsException exception) {
-        log.warn("409 License number already exists: user creation rejected");
-
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                exception.getMessage()
-        );
-
-        problem.setTitle("License number` already exists");
-
-        return problem;
-    }
-
+    // 404
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFoundException(UserNotFoundException exception) {
         log.warn("404 User not found");
@@ -86,7 +61,6 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    // 404
     @ExceptionHandler(CarNotFoundException.class)
     public ProblemDetail handleCarNotFoundException(CarNotFoundException exception) {
         log.warn("404 car not found");
@@ -144,6 +118,34 @@ public class GlobalExceptionHandler {
     }
 
     // 409
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException exception) {
+        log.warn("409 Email already exists: user creation rejected");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Email already exists");
+
+        return problem;
+    }
+
+    @ExceptionHandler(LicenseNumberAlreadyExistsException.class)
+    public ProblemDetail handleLicenseNumberAlreadyExistsException(LicenseNumberAlreadyExistsException exception) {
+        log.warn("409 License number already exists: user creation rejected");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("License number` already exists");
+
+        return problem;
+    }
+
     @ExceptionHandler(LicensePlateAlreadyExistsException.class)
     public ProblemDetail handleLicensePlateAlreadyExistsException(LicensePlateAlreadyExistsException exception) {
         log.warn("409 License plate already exist");
@@ -168,6 +170,48 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Car has already a trip.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(NotEnoughAvailableSeatsException.class)
+    public ProblemDetail handleNotEnoughAvailableSeatsException(NotEnoughAvailableSeatsException exception) {
+        log.warn("409 Not enough available seats.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Not enough available seats.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(TripNotBookableException.class)
+    public ProblemDetail handleTripNotBookableException(TripNotBookableException exception) {
+        log.warn("409 Trip not bookable.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Trip not bookable.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidTripStatusException.class)
+    public ProblemDetail handleInvalidTripStatusException(InvalidTripStatusException exception) {
+        log.warn("409 Invalid trip status.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Invalid trip status.");
 
         return problem;
     }
