@@ -6,6 +6,7 @@ import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
+import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -69,15 +70,16 @@ public class Booking {
         return getSegmentPrice().multiply(BigDecimal.valueOf(numberOfSeats));
     }
 
-    public boolean isCancellable(LocalDateTime now) {
+    public boolean isCancellable() {
         return status == BookingStatus.CONFIRMED
-                && now.isBefore(pickupPoint.getPassageTime().minusHours(CANCELLATION_DEADLINE_HOURS));
+                && LocalDateTime.now().isBefore(pickupPoint.getPassageTime().minusHours(CANCELLATION_DEADLINE_HOURS));
     }
 
     public void cancel() {
         if (status == BookingStatus.CANCELLED) {
             throw new IllegalStateException("Booking is already cancelled");
         }
+
         this.status = BookingStatus.CANCELLED;
     }
 }
