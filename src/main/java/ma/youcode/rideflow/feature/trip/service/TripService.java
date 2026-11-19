@@ -15,4 +15,6 @@ public interface TripService {
     public Page<TripResponseDTO> searchTrips(TripSearchCriteria criteria, Pageable pageable);
 
     public TripResponseDTO getTripById(Long id);
+
+    public void cancelTrip(Long driverId , Long tripId);
 }
