@@ -25,7 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -62,6 +65,17 @@ public class TripServiceImp implements TripService {
         trip.setStatus(TripStatus.PUBLISHED);
 
         buildRoute(trip, requestDTO);
+
+        if (!trip.getDepartureDateTime().isAfter(LocalDateTime.now())) {
+            throw new DepartureDateTimeMustBeInFutureException("Departure date and time must be in the future.");
+        }
+
+        if ((long) trip.getWaypoints().size() < 2) {
+            throw new InsufficientWaypointsException("At least 2 waypoints are required to create a trip.");
+        }
+
+        citiesAreUnique(trip.getWaypoints());
+        pricesStartAtZeroAndStrictlyIncrease(trip.getWaypoints());
 
         Trip createdTrip = tripRepository.save(trip);
 
@@ -156,6 +170,47 @@ public class TripServiceImp implements TripService {
             throw new SeatsExceedCarCapacityException(
                     "Proposed seats (" + proposedSeats + ") exceed car capacity (" + car.getPassengerCapacity() + ")."
             );
+        }
+    }
+
+    private void citiesAreUnique(List<Waypoint> waypoints) {
+        Set<String> cities = new HashSet<>();
+
+        for (Waypoint waypoint : waypoints) {
+            String city = waypoint.getCity().trim().toLowerCase();
+
+            if (!cities.add(city)) {
+                throw new DuplicateWaypointCityException(
+                        "City '" + waypoint.getCity().trim() + "' appears more than once in the trip route."
+                );
+            }
+        }
+    }
+
+    private void pricesStartAtZeroAndStrictlyIncrease(List<Waypoint> waypoints) {
+        BigDecimal previousPrice = null;
+
+        for (Waypoint waypoint : waypoints) {
+            BigDecimal price = waypoint.getPriceFromStart();
+
+            if (price == null) {
+                throw new InvalidWaypointPriceException(
+                        "Price is missing for city '" + waypoint.getCity() + "'."
+                );
+            }
+
+            if (previousPrice == null) {
+                if (price.compareTo(BigDecimal.ZERO) != 0) {
+                    throw new InvalidWaypointPriceException("Price at departure must be 0.");
+                }
+            } else if (price.compareTo(previousPrice) <= 0) {
+                throw new InvalidWaypointPriceException(
+                        "Price at '" + waypoint.getCity() + "' (" + price
+                                + ") must be strictly greater than the previous waypoint price (" + previousPrice + ")."
+                );
+            }
+
+            previousPrice = price;
         }
     }
 
