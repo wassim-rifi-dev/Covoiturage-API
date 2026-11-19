@@ -1,4 +1,4 @@
-package ma.youcode.rideflow.feature.trip.controller;
+package ma.youcode.rideflow.feature.driver.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,15 +13,15 @@ import java.net.URI;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/trips")
+@RequestMapping("/api/drivers")
 @RequiredArgsConstructor
-public class TripController {
+public class DriverTripController {
     private final TripService tripService;
 
-    @PostMapping("/{driverId}")
+    @PostMapping("/{driverId}/trip")
     public ResponseEntity<TripResponseDTO> createTrip(
-        @PathVariable Long driverId,
-        @RequestBody CreateTripRequestDTO requestDTO
+            @PathVariable Long driverId,
+            @RequestBody CreateTripRequestDTO requestDTO
     ) {
         log.debug("POST /api/trips/{}", driverId);
 
