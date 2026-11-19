@@ -2,7 +2,7 @@ package ma.youcode.rideflow.feature.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ma.youcode.rideflow.common.exception.SeatsExceedTripCapacityException;
+import ma.youcode.rideflow.common.exception.TripNotBookableException;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
 import ma.youcode.rideflow.feature.booking.dto.request.CreateBookingRequestDTO;
 import ma.youcode.rideflow.feature.booking.dto.response.BookingResponseDTO;
@@ -54,7 +54,7 @@ public class BookingServiceImp implements BookingService {
         Waypoint dropoffPoint = waypointRepository.findById(requestDTO.dropoffPointId())
                 .orElseThrow(() -> new WaypointNotFoundException("Waypoint not exist with id=" + requestDTO.dropoffPointId()));
 
-        hasEnoughAvailableSeats(trip , requestDTO.numberOfSeats());
+        tripIsBookable(trip);
 
         Booking booking = bookingMapper.toEntity(requestDTO);
         booking.setPassenger(passenger);
@@ -105,11 +105,9 @@ public class BookingServiceImp implements BookingService {
                 .map(bookingMapper::toResponseDto);
     }
 
-    private void hasEnoughAvailableSeats(Trip trip , int numberOfSeats) {
-        int availableSeatsCount = trip.getRemainingSeats();
-
-        if (availableSeatsCount < numberOfSeats) {
-            throw new SeatsExceedTripCapacityException("Number of seat is bigger than available seats in the trip");
+    private void tripIsBookable(Trip trip) {
+        if (!trip.isBookable()) {
+            throw new TripNotBookableException("This trip is bookable.");
         }
     }
 
