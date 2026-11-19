@@ -21,6 +21,8 @@ import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 import ma.youcode.rideflow.feature.trip.repository.TripRepository;
 import ma.youcode.rideflow.feature.trip.repository.WaypointRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,6 +94,15 @@ public class BookingServiceImp implements BookingService {
         tripRepository.save(booking.getTrip());
 
         bookingRepository.save(booking);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BookingResponseDTO> getPassengerBooking(Long passengerId, Pageable pageable) {
+        passengerExist(passengerId);
+
+        return bookingRepository.findAllByPassengerId(passengerId, pageable)
+                .map(bookingMapper::toResponseDto);
     }
 
     private void hasEnoughAvailableSeats(Trip trip , int numberOfSeats) {

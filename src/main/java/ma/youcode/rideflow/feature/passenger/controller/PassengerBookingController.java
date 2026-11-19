@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.feature.booking.dto.request.CreateBookingRequestDTO;
 import ma.youcode.rideflow.feature.booking.dto.response.BookingResponseDTO;
 import ma.youcode.rideflow.feature.booking.service.BookingService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,5 +47,15 @@ public class PassengerBookingController {
         bookingService.annulerBooking(passengerId, bookingId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{passengerId}/bookings")
+    public ResponseEntity<PagedModel<BookingResponseDTO>> getPassengerBookings(
+            @PathVariable Long passengerId,
+            @PageableDefault(size = 10, sort = "bookingDate", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        log.debug("GET /api/passengers/{}/bookings page={} size={}", passengerId, pageable.getPageNumber(), pageable.getPageSize());
+
+        return ResponseEntity.ok(new PagedModel<>(bookingService.getPassengerBooking(passengerId, pageable)));
     }
 }
