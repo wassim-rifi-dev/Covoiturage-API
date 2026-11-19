@@ -94,6 +94,13 @@ public class CarServiceImp implements CarService {
         return new DriverCarsResponseDTO(driverMapper.toResponseDto(driver), cars.getContent(), page);
     }
 
+    @Override
+    public void deleteCar(Long id) {
+        Car car = findCarById(id);
+
+        carRepository.delete(car);
+    }
+
     private Car findCarById(Long id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException("Car not found with id=" + id));

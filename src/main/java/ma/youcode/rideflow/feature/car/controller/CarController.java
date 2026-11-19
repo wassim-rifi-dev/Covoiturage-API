@@ -36,4 +36,11 @@ public class CarController {
 
         return ResponseEntity.ok(responseDTO);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
+        carService.deleteCar(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
