@@ -17,6 +17,7 @@ import ma.youcode.rideflow.feature.driver.model.entity.Driver;
 import ma.youcode.rideflow.feature.driver.repository.DriverRepository;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.passenger.repository.PassengerRepository;
+import ma.youcode.rideflow.feature.trip.exception.DriverNotAuthorizedForTripException;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
@@ -121,10 +122,27 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<BookingResponseDTO> getDriverBooking(Long driverId, Pageable pageable) {
         driverExist(driverId);
 
-        return bookingRepository.findAllByDriverId(driverId, pageable)
+        return bookingRepository.findAllByTripDriverId(driverId, pageable)
+                .map(bookingMapper::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BookingResponseDTO> getDriverTripBookings(Long driverId, Long tripId, Pageable pageable) {
+        driverExist(driverId);
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException("Trip not exist with id=" + tripId));
+
+        if (!trip.getDriver().getId().equals(driverId)) {
+            throw new DriverNotAuthorizedForTripException("This driver don't have permission to trip with id=" + tripId);
+        }
+
+        return bookingRepository.findAllByTripId(tripId, pageable)
                 .map(bookingMapper::toResponseDto);
     }
 
@@ -141,6 +159,6 @@ public class BookingServiceImp implements BookingService {
 
     private Driver driverExist(Long driverId) {
         return driverRepository.findById(driverId)
-                .orElseThrow(() -> new UserNotFoundException("Passenger not exist with id=" + driverId));
+                .orElseThrow(() -> new UserNotFoundException("Driver not exist with id=" + driverId));
     }
 }

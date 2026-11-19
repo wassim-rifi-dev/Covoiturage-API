@@ -23,11 +23,22 @@ public class DriverBookingController {
 
     @GetMapping("/{driverId}/bookings")
     public ResponseEntity<PagedModel<BookingResponseDTO>> getDriverBooking(
-            @PathVariable Long driverId,
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC)Pageable pageable
-            ) {
+        @PathVariable Long driverId,
+        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
         log.warn("GET /api/drivers/{}/bookings", driverId);
 
         return ResponseEntity.ok(new PagedModel<>(bookingService.getDriverBooking(driverId , pageable)));
+    }
+
+    @GetMapping("/{driverId}/trips/{tripId}/bookings")
+    public ResponseEntity<PagedModel<BookingResponseDTO>> getDriverTripBookings(
+        @PathVariable Long driverId,
+        @PathVariable Long tripId,
+        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        log.debug("GET /api/drivers/{}/trips/{}/bookings", driverId, tripId);
+
+        return ResponseEntity.ok(new PagedModel<>(bookingService.getDriverTripBookings(driverId, tripId, pageable)));
     }
 }

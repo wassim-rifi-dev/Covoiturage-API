@@ -10,5 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findAllByPassengerId(Long passengerId, Pageable pageable);
 
-    Page<Booking> findAllByDriverId(Long driverId, Pageable pageable);
+    Page<Booking> findAllByTripDriverId(Long driverId, Pageable pageable);
+
+    Page<Booking> findAllByTripId(Long tripId, Pageable pageable);
 }

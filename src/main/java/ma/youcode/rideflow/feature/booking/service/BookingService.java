@@ -13,4 +13,6 @@ public interface BookingService {
     public Page<BookingResponseDTO> getPassengerBooking(Long passengerId , Pageable pageable);
 
     public Page<BookingResponseDTO> getDriverBooking(Long driverId , Pageable pageable);
+
+    public Page<BookingResponseDTO> getDriverTripBookings(Long driverId, Long tripId, Pageable pageable);
 }
