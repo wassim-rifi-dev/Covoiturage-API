@@ -1,10 +1,7 @@
 package ma.youcode.rideflow.common;
 
 import lombok.extern.slf4j.Slf4j;
-import ma.youcode.rideflow.common.exception.CarNotFoundException;
-import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
-import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
-import ma.youcode.rideflow.common.exception.UserNotFoundException;
+import ma.youcode.rideflow.common.exception.*;
 import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
@@ -139,6 +136,21 @@ public class GlobalExceptionHandler {
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Booking not found.");
+
+        return problem;
+    }
+
+    // 409
+    @ExceptionHandler(LicensePlateAlreadyExistsException.class)
+    public ProblemDetail handleLicensePlateAlreadyExistsException(LicensePlateAlreadyExistsException exception) {
+        log.warn("409 License plate already exist");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
                 exception.getMessage()
         );
 
