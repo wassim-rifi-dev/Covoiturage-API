@@ -1,6 +1,7 @@
 package ma.youcode.rideflow.common;
 
 import lombok.extern.slf4j.Slf4j;
+import ma.youcode.rideflow.common.exception.CarNotFoundException;
 import ma.youcode.rideflow.common.exception.EmailAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.LicenseNumberAlreadyExistsException;
 import ma.youcode.rideflow.common.exception.UserNotFoundException;
@@ -82,6 +83,21 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("User not found");
+
+        return problem;
+    }
+
+    // 404
+    @ExceptionHandler(CarNotFoundException.class)
+    public ProblemDetail handleCarNotFoundException(CarNotFoundException exception) {
+        log.warn("404 car not found");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Car not found.");
 
         return problem;
     }
