@@ -20,14 +20,13 @@ import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 import ma.youcode.rideflow.feature.trip.repository.TripRepository;
-import ma.youcode.rideflow.feature.trip.specification.TripSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -82,16 +81,26 @@ public class TripServiceImp implements TripService {
     @Override
     @Transactional(readOnly = true)
     public Page<TripResponseDTO> searchTrips(TripSearchCriteria criteria, Pageable pageable) {
-        Specification<Trip> spec = Specification
-                .where(TripSpecification.hasDepartureCity(criteria.departureCity()))
-                .and(TripSpecification.hasArrivalCity(criteria.arrivalCity()))
-                .and(TripSpecification.hasDepartureDate(criteria.departureDate()))
-                .and(TripSpecification.hasMaxPrice(criteria.maxPrice()))
-                .and(TripSpecification.hasMinSeats(criteria.minSeats()))
-                .and(TripSpecification.hasWaypointCity(criteria.waypointCity()));
+        LocalDate date = criteria.departureDate();
 
-        return tripRepository.findAll(spec, pageable)
+        return tripRepository.searchTrips(
+                        toLikePattern(criteria.departureCity()),
+                        toLikePattern(criteria.arrivalCity()),
+                        date != null ? date.atStartOfDay() : null,
+                        date != null ? date.plusDays(1).atStartOfDay() : null,
+                        criteria.maxPrice(),
+                        criteria.minSeats(),
+                        toLikePattern(criteria.waypointCity()),
+                        pageable
+                )
                 .map(tripMapper::toResponseDto);
+    }
+
+    private String toLikePattern(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return "%" + value.trim().toLowerCase() + "%";
     }
 
     @Override
