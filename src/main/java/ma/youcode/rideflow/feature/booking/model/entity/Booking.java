@@ -35,7 +35,7 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BookingStatus status = BookingStatus.CONFIRMED;
+    private BookingStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "trip_id", nullable = false)
@@ -52,6 +52,14 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dropoff_point_id", nullable = false)
     private Waypoint dropoffPoint;
+
+    @PrePersist
+    protected void onCreate() {
+        this.bookingDate = LocalDateTime.now();
+        this.status = BookingStatus.CONFIRMED;
+        this.totalAmount = calculateTotalAmount();
+
+    }
 
     public BigDecimal getSegmentPrice() {
         return dropoffPoint.getPriceFromStart().subtract(pickupPoint.getPriceFromStart());
