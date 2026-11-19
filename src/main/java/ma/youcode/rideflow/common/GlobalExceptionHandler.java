@@ -7,7 +7,6 @@ import ma.youcode.rideflow.feature.trip.exception.TripNotFoundException;
 import ma.youcode.rideflow.feature.trip.exception.WaypointNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -154,7 +153,21 @@ public class GlobalExceptionHandler {
                 exception.getMessage()
         );
 
-        problem.setTitle("Booking not found.");
+        problem.setTitle("License plate already exist.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(CarHasTripException.class)
+    public ProblemDetail handleCarHasTripException(CarHasTripException exception) {
+        log.warn("409 Car has already a trip.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Car has already a trip.");
 
         return problem;
     }
