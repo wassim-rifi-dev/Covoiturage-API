@@ -2,6 +2,7 @@ package ma.youcode.rideflow.common;
 
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.rideflow.common.exception.*;
+import ma.youcode.rideflow.feature.booking.exception.BookingCancellationDeadlineExceededException;
 import ma.youcode.rideflow.feature.booking.exception.BookingDoesNotBelongToPassengerException;
 import ma.youcode.rideflow.feature.booking.exception.BookingNotFoundException;
 import ma.youcode.rideflow.feature.booking.exception.NotEnoughAvailableSeatsException;
@@ -220,6 +221,20 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Invalid trip status.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(BookingCancellationDeadlineExceededException.class)
+    public ProblemDetail handleBookingCancellationDeadlineExceededException(BookingCancellationDeadlineExceededException exception) {
+        log.warn("409 Booking cancellation deadline exceeded.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Booking cancellation deadline exceeded.");
 
         return problem;
     }
