@@ -11,6 +11,7 @@ import ma.youcode.covoiturage.feature.booking.service.BookingServiceImp;
 import ma.youcode.covoiturage.feature.driver.repository.DriverRepository;
 import ma.youcode.covoiturage.feature.passenger.model.entity.Passenger;
 import ma.youcode.covoiturage.feature.passenger.repository.PassengerRepository;
+import ma.youcode.covoiturage.feature.trip.exception.TripNotFoundException;
 import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
 import ma.youcode.covoiturage.feature.trip.model.entity.Waypoint;
 import ma.youcode.covoiturage.feature.trip.model.enums.TripStatus;
@@ -173,5 +174,37 @@ public class BookingServiceImpTest {
         // Verify
         verify(passengerRepository).findById(passengerId);
         verifyNoInteractions(tripRepository, waypointRepository, bookingMapper, bookingRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw a TripNotFoundException when trip not exist")
+    void createBooking_shouldThrowTripNotFoundException_whenTripNotFound() {
+        // Arrange
+        Long passengerId = 1L;
+        Long tripId = 999L;
+
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(tripId, 2, 100L, 200L);
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.empty());
+
+        // Act
+        TripNotFoundException exception = assertThrows(
+                TripNotFoundException.class,
+                () -> bookingService.createBooking(passengerId , requestDTO)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Trip not exist with id=" + tripId , exception.getMessage());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verify(tripRepository).findById(tripId);
+        verify(tripRepository, never()).save(any(Trip.class));
+        verifyNoInteractions(waypointRepository, bookingMapper, bookingRepository);
     }
 }
