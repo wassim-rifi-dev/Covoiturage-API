@@ -1,6 +1,7 @@
 package ma.youcode.rideflow.feature.trip.mapper;
 
 import ma.youcode.rideflow.feature.trip.dto.request.WaypointRequestDTO;
+import ma.youcode.rideflow.feature.trip.dto.response.WaypointResponseDTO;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,4 +15,8 @@ public interface WaypointMapper {
     Waypoint toEntity(WaypointRequestDTO waypointRequestDTO);
 
     List<Waypoint> toEntityList(List<WaypointRequestDTO> waypointRequestDTOs);
+
+    WaypointResponseDTO toResponseDto(Waypoint waypoint);
+
+    List<WaypointResponseDTO> toResponseDtoList(List<Waypoint> waypoints);
 }
