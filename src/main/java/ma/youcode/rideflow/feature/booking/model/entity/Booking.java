@@ -2,11 +2,11 @@ package ma.youcode.rideflow.feature.booking.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ma.youcode.rideflow.feature.booking.exception.BookingAlreadyCancelledException;
 import ma.youcode.rideflow.feature.booking.model.enums.BookingStatus;
 import ma.youcode.rideflow.feature.passenger.model.entity.Passenger;
 import ma.youcode.rideflow.feature.trip.model.entity.Trip;
 import ma.youcode.rideflow.feature.trip.model.entity.Waypoint;
-import ma.youcode.rideflow.feature.trip.model.enums.TripStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -77,7 +77,7 @@ public class Booking {
 
     public void cancel() {
         if (status == BookingStatus.CANCELLED) {
-            throw new IllegalStateException("Booking is already cancelled");
+            throw new BookingAlreadyCancelledException("Booking is already cancelled");
         }
 
         this.status = BookingStatus.CANCELLED;
