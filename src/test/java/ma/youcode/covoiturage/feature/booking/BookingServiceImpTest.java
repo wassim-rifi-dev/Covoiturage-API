@@ -4,6 +4,10 @@ import ma.youcode.covoiturage.common.exception.TripNotBookableException;
 import ma.youcode.covoiturage.common.exception.UserNotFoundException;
 import ma.youcode.covoiturage.feature.booking.dto.request.CreateBookingRequestDTO;
 import ma.youcode.covoiturage.feature.booking.dto.response.BookingResponseDTO;
+import ma.youcode.covoiturage.feature.booking.exception.BookingAlreadyCancelledException;
+import ma.youcode.covoiturage.feature.booking.exception.BookingCancellationDeadlineExceededException;
+import ma.youcode.covoiturage.feature.booking.exception.BookingDoesNotBelongToPassengerException;
+import ma.youcode.covoiturage.feature.booking.exception.BookingNotFoundException;
 import ma.youcode.covoiturage.feature.booking.exception.NotEnoughAvailableSeatsException;
 import ma.youcode.covoiturage.feature.booking.mapper.BookingMapper;
 import ma.youcode.covoiturage.feature.booking.model.entity.Booking;
@@ -553,5 +557,209 @@ public class BookingServiceImpTest {
         // Verify
         verify(tripRepository).save(trip);
         verify(bookingRepository).save(booking);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when passenger does not exist on cancel")
+    void annulerBooking_shouldThrowUserNotFoundException_whenPassengerNotFound() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> bookingService.annulerBooking(passengerId, bookingId));
+
+        // Verify
+        verify(bookingRepository, never()).findById(any());
+        verify(tripRepository, never()).save(any());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw BookingNotFoundException when booking does not exist")
+    void annulerBooking_shouldThrowBookingNotFoundException_whenBookingNotFound() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(BookingNotFoundException.class, () -> bookingService.annulerBooking(passengerId, bookingId));
+
+        // Verify
+        verify(tripRepository, never()).save(any());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw BookingDoesNotBelongToPassengerException when passenger is not the booking owner")
+    void annulerBooking_shouldThrowBookingDoesNotBelongToPassengerException_whenPassengerIsNotOwner() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Passenger owner = new Passenger();
+        owner.setId(2L);
+
+        Booking booking = buildBooking(bookingId, owner, BookingStatus.CONFIRMED, TripStatus.PUBLISHED,
+                LocalDateTime.now().plusDays(3));
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act & Assert
+        assertThrows(BookingDoesNotBelongToPassengerException.class,
+                () -> bookingService.annulerBooking(passengerId, bookingId));
+        assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+
+        // Verify
+        verify(tripRepository, never()).save(any());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw BookingAlreadyCancelledException when booking is already cancelled")
+    void annulerBooking_shouldThrowBookingAlreadyCancelledException_whenBookingAlreadyCancelled() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Booking booking = buildBooking(bookingId, passenger, BookingStatus.CANCELLED, TripStatus.PUBLISHED,
+                LocalDateTime.now().plusDays(3));
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act & Assert
+        assertThrows(BookingAlreadyCancelledException.class,
+                () -> bookingService.annulerBooking(passengerId, bookingId));
+
+        // Verify
+        verify(tripRepository, never()).save(any());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw BookingCancellationDeadlineExceededException when cancellation deadline has passed")
+    void annulerBooking_shouldThrowBookingCancellationDeadlineExceededException_whenDeadlinePassed() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        // Pickup in 10 hours: inside the 24h cancellation deadline
+        Booking booking = buildBooking(bookingId, passenger, BookingStatus.CONFIRMED, TripStatus.PUBLISHED,
+                LocalDateTime.now().plusHours(10));
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act & Assert
+        assertThrows(BookingCancellationDeadlineExceededException.class,
+                () -> bookingService.annulerBooking(passengerId, bookingId));
+        assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+
+        // Verify
+        verify(tripRepository, never()).save(any());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should set trip status back to PUBLISHED when trip was FULL")
+    void annulerBooking_shouldSetTripStatusToPublished_whenTripWasFull() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Booking booking = buildBooking(bookingId, passenger, BookingStatus.CONFIRMED, TripStatus.FULL,
+                LocalDateTime.now().plusDays(3));
+        Trip trip = booking.getTrip();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act
+        bookingService.annulerBooking(passengerId, bookingId);
+
+        // Assert
+        assertEquals(TripStatus.PUBLISHED, trip.getStatus());
+
+        // Verify
+        verify(tripRepository).save(trip);
+    }
+
+    @Test
+    @DisplayName("Should update trip proposed seats when booking is cancelled")
+    void annulerBooking_shouldUpdateProposedSeats_whenBookingCancelled() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Booking booking = buildBooking(bookingId, passenger, BookingStatus.CONFIRMED, TripStatus.PUBLISHED,
+                LocalDateTime.now().plusDays(3));
+        Trip trip = booking.getTrip();
+        int initialProposedSeats = trip.getProposedSeats();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act
+        bookingService.annulerBooking(passengerId, bookingId);
+
+        // Assert
+        assertEquals(initialProposedSeats - booking.getNumberOfSeats(), trip.getProposedSeats());
+        assertEquals(TripStatus.PUBLISHED, trip.getStatus());
+
+        // Verify
+        verify(tripRepository).save(trip);
+        verify(bookingRepository).save(booking);
+    }
+
+    private Booking buildBooking(Long bookingId, Passenger passenger, BookingStatus bookingStatus,
+                                 TripStatus tripStatus, LocalDateTime pickupTime) {
+        Trip trip = Trip.builder()
+                .id(10L)
+                .proposedSeats(4)
+                .status(tripStatus)
+                .departureDateTime(pickupTime)
+                .build();
+
+        Waypoint pickupPoint = Waypoint.builder()
+                .id(100L)
+                .city("Casablanca")
+                .order(0)
+                .priceFromStart(BigDecimal.ZERO)
+                .passageTime(pickupTime)
+                .build();
+
+        return Booking.builder()
+                .id(bookingId)
+                .numberOfSeats(2)
+                .status(bookingStatus)
+                .passenger(passenger)
+                .trip(trip)
+                .pickupPoint(pickupPoint)
+                .build();
     }
 }
