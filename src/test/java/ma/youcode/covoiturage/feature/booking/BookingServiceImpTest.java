@@ -505,4 +505,53 @@ public class BookingServiceImpTest {
         verify(bookingRepository).save(booking);
         verify(bookingMapper).toResponseDto(savedBooking);
     }
+
+    @Test
+    @DisplayName("Should cancel booking when request is valid")
+    void annulerBooking_shouldCancelBooking_whenRequestIsValid() {
+        // Arrange
+        Long passengerId = 1L;
+        Long bookingId = 5L;
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Trip trip = Trip.builder()
+                .id(10L)
+                .proposedSeats(4)
+                .status(TripStatus.FULL)
+                .departureDateTime(LocalDateTime.now().plusDays(3))
+                .build();
+
+        Waypoint pickupPoint = Waypoint.builder()
+                .id(100L)
+                .city("Casablanca")
+                .order(0)
+                .priceFromStart(BigDecimal.ZERO)
+                .passageTime(LocalDateTime.now().plusDays(3))
+                .build();
+
+        Booking booking = Booking.builder()
+                .id(bookingId)
+                .numberOfSeats(2)
+                .status(BookingStatus.CONFIRMED)
+                .passenger(passenger)
+                .trip(trip)
+                .pickupPoint(pickupPoint)
+                .build();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act
+        bookingService.annulerBooking(passengerId, bookingId);
+
+        // Assert
+        assertEquals(BookingStatus.CANCELLED, booking.getStatus());
+        assertEquals(TripStatus.PUBLISHED, trip.getStatus());
+
+        // Verify
+        verify(tripRepository).save(trip);
+        verify(bookingRepository).save(booking);
+    }
 }
