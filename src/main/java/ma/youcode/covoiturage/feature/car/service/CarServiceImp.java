@@ -99,6 +99,7 @@ public class CarServiceImp implements CarService {
     }
 
     @Override
+    @Transactional
     public void deleteCar(Long id) {
         Car car = findCarById(id);
 
