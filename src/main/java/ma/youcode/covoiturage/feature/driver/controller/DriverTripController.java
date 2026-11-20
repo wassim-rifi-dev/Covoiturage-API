@@ -28,7 +28,7 @@ public class DriverTripController {
 
         TripResponseDTO responseDTO = tripService.createTrip(driverId, requestDTO);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/trips/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();

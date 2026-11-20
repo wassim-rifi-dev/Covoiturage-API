@@ -43,8 +43,8 @@ public class DriverController {
 
         DriverResponseDTO responseDTO = driverService.createDriver(requestDTO);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/drivers/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 

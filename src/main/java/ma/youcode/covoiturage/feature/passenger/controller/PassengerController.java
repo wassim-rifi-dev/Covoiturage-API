@@ -43,8 +43,8 @@ public class PassengerController {
 
         PassengerResponseDTO responseDTO = passengerService.createPassenger(requestDTO);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/passengers/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 
