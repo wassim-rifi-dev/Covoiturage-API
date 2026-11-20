@@ -133,7 +133,7 @@ public class TripServiceImp implements TripService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException("Trip not exist with id=" + tripId));
 
-        if (trip.getDriver().getId().equals(driver.getId())) {
+        if (!trip.getDriver().getId().equals(driver.getId())) {
             throw new DriverNotAuthorizedForTripException("This driver don't have permission to trip with id=" + tripId);
         }
 
