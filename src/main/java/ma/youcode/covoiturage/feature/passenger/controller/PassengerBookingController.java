@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.passenger.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,10 @@ import java.net.URI;
 public class PassengerBookingController {
     private final BookingService bookingService;
 
+    @Operation(
+            summary = "Book a trip",
+            description = "Creates a new booking on a trip for the given passenger."
+    )
     @PostMapping("/{passengerId}/booking")
     public ResponseEntity<BookingResponseDTO> createBooking(
         @PathVariable Long passengerId,
@@ -45,6 +50,10 @@ public class PassengerBookingController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
+    @Operation(
+            summary = "Cancel a booking",
+            description = "Cancels a booking belonging to the given passenger."
+    )
     @PatchMapping("/{passengerId}/bookings/{bookingId}/cancel")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long passengerId , @PathVariable Long bookingId) {
         log.warn("PATCH /api/passengers/{}/bookings/{}/cancel", passengerId, bookingId);
@@ -54,6 +63,10 @@ public class PassengerBookingController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "List a passenger's bookings",
+            description = "Returns a paginated list of the bookings made by the given passenger."
+    )
     @GetMapping("/{passengerId}/bookings")
     public ResponseEntity<PagedModel<BookingResponseDTO>> getPassengerBookings(
             @PathVariable Long passengerId,

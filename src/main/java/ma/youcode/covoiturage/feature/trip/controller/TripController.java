@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.trip.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,10 @@ import java.time.LocalDate;
 public class TripController {
     private final TripService tripService;
 
+    @Operation(
+            summary = "Search trips",
+            description = "Returns a paginated list of trips matching the optional criteria (departure city, arrival city, date, price...)."
+    )
     @GetMapping
     public ResponseEntity<PagedModel<TripResponseDTO>> searchTrips(
             @RequestParam(required = false) String departureCity,
@@ -47,6 +52,10 @@ public class TripController {
         return ResponseEntity.ok(new PagedModel<>(tripService.searchTrips(criteria, pageable)));
     }
 
+    @Operation(
+            summary = "Get a trip by ID",
+            description = "Returns the details of the trip identified by the given ID."
+    )
     @GetMapping("/{id}")
     public ResponseEntity<TripResponseDTO> getTripById(@PathVariable Long id) {
         log.warn("GET /api/trips/{}", id);

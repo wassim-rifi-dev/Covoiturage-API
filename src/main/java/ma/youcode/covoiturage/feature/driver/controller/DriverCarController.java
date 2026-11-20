@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,10 @@ import java.net.URI;
 public class DriverCarController {
     private final CarService carService;
 
+    @Operation(
+            summary = "Register a car for a driver",
+            description = "Creates a new car and associates it with the given driver."
+    )
     @PostMapping("/{driverId}/car")
     public ResponseEntity<CarResponseDTO> createCar(
             @PathVariable Long driverId,
@@ -44,6 +49,10 @@ public class DriverCarController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
+    @Operation(
+            summary = "List a driver's cars",
+            description = "Returns a paginated list of the cars owned by the given driver."
+    )
     @GetMapping("/{driverId}/car")
     public ResponseEntity<DriverCarsResponseDTO> getCarsByDriverId(
             @PathVariable Long driverId,

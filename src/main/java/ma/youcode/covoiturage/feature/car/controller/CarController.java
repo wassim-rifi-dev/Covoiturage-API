@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.car.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,10 @@ import org.springframework.web.bind.annotation.*;
 public class CarController {
     private final CarService carService;
 
+    @Operation(
+            summary = "Get a car by ID",
+            description = "Returns the details of the car identified by the given ID."
+    )
     @GetMapping("/{id}")
     public ResponseEntity<CarResponseDTO> getCarById(@PathVariable Long id) {
         log.debug("GET /api/car/{}", id);
@@ -30,6 +35,10 @@ public class CarController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(
+            summary = "Update a car",
+            description = "Updates the information of an existing car identified by its ID."
+    )
     @PutMapping("/{id}")
     public ResponseEntity<CarResponseDTO> updateCar(
             @PathVariable Long id,
@@ -42,6 +51,10 @@ public class CarController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(
+            summary = "Delete a car",
+            description = "Deletes the car identified by the given ID."
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
         carService.deleteCar(id);

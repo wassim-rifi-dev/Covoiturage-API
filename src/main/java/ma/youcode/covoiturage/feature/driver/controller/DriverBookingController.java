@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DriverBookingController {
     private final BookingService bookingService;
 
+    @Operation(
+            summary = "List a driver's bookings",
+            description = "Returns a paginated list of all bookings made on the trips of the given driver."
+    )
     @GetMapping("/{driverId}/bookings")
     public ResponseEntity<PagedModel<BookingResponseDTO>> getDriverBooking(
         @PathVariable Long driverId,
@@ -36,6 +41,10 @@ public class DriverBookingController {
         return ResponseEntity.ok(new PagedModel<>(bookingService.getDriverBooking(driverId , pageable)));
     }
 
+    @Operation(
+            summary = "List bookings of a driver's trip",
+            description = "Returns a paginated list of bookings for a specific trip belonging to the given driver."
+    )
     @GetMapping("/{driverId}/trips/{tripId}/bookings")
     public ResponseEntity<PagedModel<BookingResponseDTO>> getDriverTripBookings(
         @PathVariable Long driverId,
