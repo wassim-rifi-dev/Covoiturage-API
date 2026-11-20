@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.passenger.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/passenger")
 @RequiredArgsConstructor
+@Tag(
+        name = "Passenger",
+        description = "Passenger management endpoints."
+)
 public class PassengerController {
     private final PassengerService passengerService;
 

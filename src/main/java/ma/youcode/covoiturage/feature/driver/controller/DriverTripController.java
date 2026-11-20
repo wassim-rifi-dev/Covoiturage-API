@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.feature.trip.dto.request.CreateTripRequestDTO;
@@ -15,6 +16,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
+@Tag(
+        name = "Driver Trips",
+        description = "Endpoints for drivers to create and manage their trips."
+)
 public class DriverTripController {
     private final TripService tripService;
 

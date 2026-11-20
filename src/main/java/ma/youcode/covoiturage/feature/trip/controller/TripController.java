@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.trip.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.feature.trip.dto.request.TripSearchCriteria;
@@ -20,6 +21,10 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/trips")
 @RequiredArgsConstructor
+@Tag(
+        name = "Trip",
+        description = "Endpoints to search and consult trips."
+)
 public class TripController {
     private final TripService tripService;
 

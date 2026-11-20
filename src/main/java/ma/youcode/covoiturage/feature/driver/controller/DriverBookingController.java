@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.feature.booking.dto.response.BookingResponseDTO;
@@ -18,6 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
+@Tag(
+        name = "Driver Bookings",
+        description = "Endpoints for drivers to view bookings on their trips."
+)
 public class DriverBookingController {
     private final BookingService bookingService;
 

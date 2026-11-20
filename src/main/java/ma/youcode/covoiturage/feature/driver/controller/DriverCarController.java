@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
+@Tag(
+        name = "Driver Cars",
+        description = "Endpoints for drivers to register and list their cars."
+)
 public class DriverCarController {
     private final CarService carService;
 
