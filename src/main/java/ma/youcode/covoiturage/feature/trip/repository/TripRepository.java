@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
-    boolean existsByCarIdAndStatusNotIn(Car car, Collection<TripStatus> status);
+    boolean existsByCarAndStatusNotIn(Car car, Collection<TripStatus> status);
 
     @Query("""
             SELECT COUNT(t) > 0 FROM Trip t
