@@ -342,6 +342,20 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(CarAlreadyHasTripInTimeRangeException.class)
+    public ProblemDetail handleCarAlreadyHasTripInTimeRangeException(CarAlreadyHasTripInTimeRangeException exception) {
+        log.warn("409 Car already has a trip in this time range.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Car already has a trip in this time range.");
+
+        return problem;
+    }
+
     @ExceptionHandler(DuplicateWaypointCityException.class)
     public ProblemDetail handleDuplicateWaypointCityException(DuplicateWaypointCityException exception) {
         log.warn("400 Duplicate waypoint city.");

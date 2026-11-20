@@ -16,6 +16,20 @@ import java.util.Collection;
 public interface TripRepository extends JpaRepository<Trip, Long> {
     boolean existsByCarIdAndStatusNotIn(Car car, Collection<TripStatus> status);
 
+    @Query("""
+            SELECT COUNT(t) > 0 FROM Trip t
+            WHERE t.car.id = :carId
+              AND t.status NOT IN :excludedStatuses
+              AND t.departureDateTime < :arrivalDateTime
+              AND (SELECT MAX(w.passageTime) FROM Waypoint w WHERE w.trip = t) > :departureDateTime
+            """)
+    boolean existsOverlappingTripForCar(
+            @Param("carId") Long carId,
+            @Param("departureDateTime") LocalDateTime departureDateTime,
+            @Param("arrivalDateTime") LocalDateTime arrivalDateTime,
+            @Param("excludedStatuses") Collection<TripStatus> excludedStatuses
+    );
+
     String SEARCH_CONDITIONS = """
             WHERE (:departureCity IS NULL OR LOWER(t.departureCity) LIKE :departureCity)
               AND (:arrivalCity IS NULL OR LOWER(t.arrivalCity) LIKE :arrivalCity)

@@ -57,6 +57,7 @@ public class TripServiceImp implements TripService {
 
         carBelongsToDriver(car, driverId);
         seatsWithinCarCapacity(requestDTO.proposedSeats(), car);
+        carIsAvailableDuringTrip(car, requestDTO.departureDateTime(), requestDTO.arrivalDateTime());
         waypointService.waypointsWithinTrip(requestDTO);
 
         Trip trip = tripMapper.toEntity(requestDTO);
@@ -162,6 +163,22 @@ public class TripServiceImp implements TripService {
     private void carBelongsToDriver(Car car, Long driverId) {
         if (!car.getDriver().getId().equals(driverId)) {
             throw new CarDoesNotBelongToDriverException("This car does not belong to driver with id=" + driverId);
+        }
+    }
+
+    private void carIsAvailableDuringTrip(Car car, LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+        boolean overlaps = tripRepository.existsOverlappingTripForCar(
+                car.getId(),
+                departureDateTime,
+                arrivalDateTime,
+                List.of(TripStatus.COMPLETED, TripStatus.CANCELLED)
+        );
+
+        if (overlaps) {
+            throw new CarAlreadyHasTripInTimeRangeException(
+                    "Car with id=" + car.getId() + " already has a trip between "
+                            + departureDateTime + " and " + arrivalDateTime + "."
+            );
         }
     }
 
