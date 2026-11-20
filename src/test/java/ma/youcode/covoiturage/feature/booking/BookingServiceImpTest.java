@@ -18,6 +18,7 @@ import ma.youcode.covoiturage.feature.driver.model.entity.Driver;
 import ma.youcode.covoiturage.feature.driver.repository.DriverRepository;
 import ma.youcode.covoiturage.feature.passenger.model.entity.Passenger;
 import ma.youcode.covoiturage.feature.passenger.repository.PassengerRepository;
+import ma.youcode.covoiturage.feature.trip.exception.DriverNotAuthorizedForTripException;
 import ma.youcode.covoiturage.feature.trip.exception.TripNotFoundException;
 import ma.youcode.covoiturage.feature.trip.exception.WaypointNotFoundException;
 import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
@@ -936,6 +937,184 @@ public class BookingServiceImpTest {
 
         // Verify
         verify(driverRepository).findById(driverId);
+        verifyNoInteractions(bookingRepository, bookingMapper);
+    }
+
+    @Test
+    @DisplayName("Should return page of bookings when driver owns the trip")
+    void getDriverTripBookings_shouldReturnPageOfBookings_whenDriverOwnsTrip() {
+        // Arrange
+        Long driverId = 1L;
+        Long tripId = 10L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Driver driver = new Driver();
+        driver.setId(driverId);
+
+        Trip trip = Trip.builder()
+                .id(tripId)
+                .proposedSeats(4)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .driver(driver)
+                .build();
+
+        Booking booking1 = Booking.builder()
+                .id(1L)
+                .numberOfSeats(2)
+                .totalAmount(BigDecimal.valueOf(100))
+                .status(BookingStatus.CONFIRMED)
+                .bookingDate(LocalDateTime.now())
+                .trip(trip)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .id(2L)
+                .numberOfSeats(1)
+                .totalAmount(BigDecimal.valueOf(50))
+                .status(BookingStatus.CANCELLED)
+                .bookingDate(LocalDateTime.now())
+                .trip(trip)
+                .build();
+
+        Page<Booking> bookingPage = new PageImpl<>(List.of(booking1, booking2), pageable, 2);
+
+        BookingResponseDTO response1 = BookingResponseDTO.builder()
+                .id(1L)
+                .numberOfSeats(2)
+                .totalAmount(BigDecimal.valueOf(100))
+                .status(BookingStatus.CONFIRMED)
+                .build();
+
+        BookingResponseDTO response2 = BookingResponseDTO.builder()
+                .id(2L)
+                .numberOfSeats(1)
+                .totalAmount(BigDecimal.valueOf(50))
+                .status(BookingStatus.CANCELLED)
+                .build();
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
+        when(bookingRepository.findAllByTripId(tripId, pageable)).thenReturn(bookingPage);
+        when(bookingMapper.toResponseDto(booking1)).thenReturn(response1);
+        when(bookingMapper.toResponseDto(booking2)).thenReturn(response2);
+
+        // Act
+        Page<BookingResponseDTO> result = bookingService.getDriverTripBookings(driverId, tripId, pageable);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2 , result.getTotalElements());
+        assertEquals(2 , result.getContent().size());
+        assertEquals(response1 , result.getContent().get(0));
+        assertEquals(response2 , result.getContent().get(1));
+        assertEquals(1L , result.getContent().get(0).id());
+        assertEquals(BookingStatus.CONFIRMED , result.getContent().get(0).status());
+        assertEquals(2L , result.getContent().get(1).id());
+        assertEquals(BookingStatus.CANCELLED , result.getContent().get(1).status());
+
+        // Verify
+        verify(driverRepository).findById(driverId);
+        verify(tripRepository).findById(tripId);
+        verify(bookingRepository).findAllByTripId(tripId, pageable);
+        verify(bookingMapper).toResponseDto(booking1);
+        verify(bookingMapper).toResponseDto(booking2);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when driver not found on trip bookings")
+    void getDriverTripBookings_shouldThrowUserNotFoundException_whenDriverNotFound() {
+        // Arrange
+        Long driverId = 99L;
+        Long tripId = 10L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.empty());
+
+        // Act
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> bookingService.getDriverTripBookings(driverId , tripId , pageable)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Driver not exist with id=" + driverId , exception.getMessage());
+
+        // Verify
+        verify(driverRepository).findById(driverId);
+        verifyNoInteractions(tripRepository, bookingRepository, bookingMapper);
+    }
+
+    @Test
+    @DisplayName("Should throw TripNotFoundException when trip not found on trip bookings")
+    void getDriverTripBookings_shouldThrowTripNotFoundException_whenTripNotFound() {
+        // Arrange
+        Long driverId = 1L;
+        Long tripId = 999L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Driver driver = new Driver();
+        driver.setId(driverId);
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.empty());
+
+        // Act
+        TripNotFoundException exception = assertThrows(
+                TripNotFoundException.class,
+                () -> bookingService.getDriverTripBookings(driverId , tripId , pageable)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Trip not exist with id=" + tripId , exception.getMessage());
+
+        // Verify
+        verify(driverRepository).findById(driverId);
+        verify(tripRepository).findById(tripId);
+        verifyNoInteractions(bookingRepository, bookingMapper);
+    }
+
+    @Test
+    @DisplayName("Should throw DriverNotAuthorizedForTripException when driver is not the trip owner")
+    void getDriverTripBookings_shouldThrowDriverNotAuthorizedForTripException_whenDriverNotOwner() {
+        // Arrange
+        Long driverId = 1L;
+        Long ownerId = 2L;
+        Long tripId = 10L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Driver driver = new Driver();
+        driver.setId(driverId);
+
+        Driver owner = new Driver();
+        owner.setId(ownerId);
+
+        Trip trip = Trip.builder()
+                .id(tripId)
+                .proposedSeats(4)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .driver(owner)
+                .build();
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
+
+        // Act
+        DriverNotAuthorizedForTripException exception = assertThrows(
+                DriverNotAuthorizedForTripException.class,
+                () -> bookingService.getDriverTripBookings(driverId , tripId , pageable)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("This driver don't have permission to trip with id=" + tripId , exception.getMessage());
+
+        // Verify
+        verify(driverRepository).findById(driverId);
+        verify(tripRepository).findById(tripId);
         verifyNoInteractions(bookingRepository, bookingMapper);
     }
 
