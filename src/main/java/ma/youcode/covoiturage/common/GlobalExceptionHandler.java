@@ -160,7 +160,7 @@ public class GlobalExceptionHandler {
                 exception.getMessage()
         );
 
-        problem.setTitle("License number` already exists");
+        problem.setTitle("License number already exists");
 
         return problem;
     }

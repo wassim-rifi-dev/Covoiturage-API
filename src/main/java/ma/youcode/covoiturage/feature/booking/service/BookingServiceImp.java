@@ -152,7 +152,7 @@ public class BookingServiceImp implements BookingService {
 
     private void tripIsBookable(Trip trip) {
         if (!trip.isBookable()) {
-            throw new TripNotBookableException("This trip is bookable.");
+            throw new TripNotBookableException("This trip not bookable.");
         }
     }
 
