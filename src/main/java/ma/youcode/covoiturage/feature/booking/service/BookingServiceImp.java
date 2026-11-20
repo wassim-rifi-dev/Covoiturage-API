@@ -107,8 +107,6 @@ public class BookingServiceImp implements BookingService {
             booking.getTrip().setStatus(TripStatus.PUBLISHED);
         }
 
-        booking.getTrip().setProposedSeats(booking.getTrip().getProposedSeats() - booking.getNumberOfSeats());
-
         tripRepository.save(booking.getTrip());
 
         bookingRepository.save(booking);
