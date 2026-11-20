@@ -20,7 +20,7 @@ import java.net.URI;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/passenger")
+@RequestMapping("/api/passengers")
 @RequiredArgsConstructor
 public class PassengerController {
     private final PassengerService passengerService;
@@ -29,7 +29,7 @@ public class PassengerController {
     public ResponseEntity<PassengerResponseDTO> createPassenger(
             @RequestBody CreatePassengeRequestDTO requestDTO
     ) {
-        log.debug("POST /api/passenger");
+        log.debug("POST /api/passengers");
 
         PassengerResponseDTO responseDTO = passengerService.createPassenger(requestDTO);
 
@@ -46,7 +46,7 @@ public class PassengerController {
             @PathVariable Long id,
             @Valid @RequestBody UpdatePassengerRequestDTO requestDTO
     ) {
-        log.debug("PUT /api/passenger/{}", id);
+        log.debug("PUT /api/passengers/{}", id);
 
         PassengerResponseDTO responseDTO = passengerService.updatePassenger(id, requestDTO);
 
@@ -60,7 +60,7 @@ public class PassengerController {
             @RequestParam(required = false) String phone,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        log.debug("GET /api/passenger page={} size={} search", pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("GET /api/passengers page={} size={} search", pageable.getPageNumber(), pageable.getPageSize());
 
         PassengerSearchCriteria criteria = new PassengerSearchCriteria(fullName, email, phone);
 
