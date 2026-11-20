@@ -15,10 +15,7 @@ import ma.youcode.covoiturage.feature.driver.model.entity.Driver;
 import ma.youcode.covoiturage.feature.driver.repository.DriverRepository;
 import ma.youcode.covoiturage.feature.passenger.model.entity.Passenger;
 import ma.youcode.covoiturage.feature.passenger.repository.PassengerRepository;
-import ma.youcode.covoiturage.feature.trip.exception.DriverNotAuthorizedForTripException;
-import ma.youcode.covoiturage.feature.trip.exception.TripNotFoundException;
-import ma.youcode.covoiturage.feature.trip.exception.WaypointNotBelongToTripException;
-import ma.youcode.covoiturage.feature.trip.exception.WaypointNotFoundException;
+import ma.youcode.covoiturage.feature.trip.exception.*;
 import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
 import ma.youcode.covoiturage.feature.trip.model.entity.Waypoint;
 import ma.youcode.covoiturage.feature.trip.model.enums.TripStatus;
@@ -67,6 +64,10 @@ public class BookingServiceImp implements BookingService {
 
         if (!trip.getWaypoints().contains(pickupPoint) && !trip.getWaypoints().contains(dropoffPoint)) {
             throw new WaypointNotBelongToTripException("Pickup point or dropoff point does not belong to this trip");
+        }
+
+        if (dropoffPoint.getOrder() < pickupPoint.getOrder()) {
+            throw new InvalidWaypointOrderException("Dropoff point must be after pickup point");
         }
 
         Booking booking = bookingMapper.toEntity(requestDTO);
