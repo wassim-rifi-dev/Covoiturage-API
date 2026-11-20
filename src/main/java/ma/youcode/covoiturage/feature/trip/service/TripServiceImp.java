@@ -102,7 +102,6 @@ public class TripServiceImp implements TripService {
                         date != null ? date.atStartOfDay() : null,
                         date != null ? date.plusDays(1).atStartOfDay() : null,
                         criteria.maxPrice(),
-                        criteria.minSeats(),
                         criteria.waypointCity(),
                         List.of(TripStatus.CANCELLED, TripStatus.COMPLETED),
                         LocalDateTime.now(),

@@ -37,7 +37,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
       AND (:dateFrom IS NULL OR t.departureDateTime >= :dateFrom)
       AND (:dateTo IS NULL OR t.departureDateTime < :dateTo)
       AND (:maxPrice IS NULL OR t.price <= :maxPrice)
-      AND (:minSeats IS NULL OR t.availableSeats >= :minSeats)
       AND t.status NOT IN :excludedStatuses
       AND t.departureDateTime > :now
       AND (:waypointCity IS NULL OR EXISTS (
@@ -57,7 +56,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo,
             @Param("maxPrice") BigDecimal maxPrice,
-            @Param("minSeats") Integer minSeats,
             @Param("waypointCity") String waypointCity,
             @Param("excludedStatuses") Collection<TripStatus> excludedStatuses,
             @Param("now") LocalDateTime now,
