@@ -251,4 +251,57 @@ public class BookingServiceImpTest {
         verify(tripRepository, never()).save(any(Trip.class));
         verifyNoInteractions(bookingMapper, bookingRepository);
     }
+
+    @Test
+    @DisplayName("Should throw a WaypointNotFoundException when dropoff point not exist")
+    void createBooking_shouldThrowWaypointNotFoundException_whenDropoffPointNotFound() {
+        // Arrange
+        Long passengerId = 1L;
+        Long tripId = 10L;
+        Long pickupPointId = 100L;
+        Long dropoffPointId = 999L;
+
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(tripId, 2, pickupPointId, dropoffPointId);
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Trip trip = Trip.builder()
+                .id(tripId)
+                .proposedSeats(4)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        Waypoint pickupPoint = Waypoint.builder()
+                .id(pickupPointId)
+                .city("Casablanca")
+                .order(0)
+                .priceFromStart(BigDecimal.ZERO)
+                .passageTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
+        when(waypointRepository.findById(pickupPointId)).thenReturn(Optional.of(pickupPoint));
+        when(waypointRepository.findById(dropoffPointId)).thenReturn(Optional.empty());
+
+        // Act
+        WaypointNotFoundException exception = assertThrows(
+                WaypointNotFoundException.class,
+                () -> bookingService.createBooking(passengerId , requestDTO)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Waypoint not exist with id=" + dropoffPointId , exception.getMessage());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verify(tripRepository).findById(tripId);
+        verify(waypointRepository).findById(pickupPointId);
+        verify(waypointRepository).findById(dropoffPointId);
+        verify(tripRepository, never()).save(any(Trip.class));
+        verifyNoInteractions(bookingMapper, bookingRepository);
+    }
 }
