@@ -101,8 +101,13 @@ public class CarServiceImp implements CarService {
 
     @Override
     @Transactional
-    public void deleteCar(Long id) {
-        Car car = findCarById(id);
+    public void deleteCar(Long driverId, Long carId) {
+        Car car = findCarById(carId);
+        Driver driver = findDriverById(driverId);
+
+        if (!car.getDriver().getId().equals(driver.getId())) {
+            throw new CarDoesNotBelongToDriverException("This car does not belong to the specified driver");
+        }
 
         carHasTrip(car);
 

@@ -34,15 +34,4 @@ public class CarController {
 
         return ResponseEntity.ok(responseDTO);
     }
-
-    @Operation(
-            summary = "Delete a car",
-            description = "Deletes the car identified by the given ID."
-    )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
-        carService.deleteCar(id);
-
-        return ResponseEntity.noContent().build();
-    }
 }

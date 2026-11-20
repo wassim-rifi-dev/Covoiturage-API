@@ -47,9 +47,9 @@ public class DriverCarController {
     )
     @PutMapping("/{driverId}/cars/{carId}")
     public ResponseEntity<CarResponseDTO> updateCar(
-            @PathVariable Long driverId,
-            @PathVariable Long carId,
-            @Valid @RequestBody UpdateCarRequestDTO requestDTO
+        @PathVariable Long driverId,
+        @PathVariable Long carId,
+        @Valid @RequestBody UpdateCarRequestDTO requestDTO
     ) {
         log.debug("PUT /api/cars/{}/cars/{}", driverId, carId);
 
@@ -60,11 +60,25 @@ public class DriverCarController {
 
     @GetMapping("/{driverId}/cars")
     public ResponseEntity<DriverCarsResponseDTO> getCarsByDriverId(
-            @PathVariable Long driverId,
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+        @PathVariable Long driverId,
+        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         log.debug("GET /api/drivers/{}/cars page={} size={}", driverId, pageable.getPageNumber(), pageable.getPageSize());
 
         return ResponseEntity.ok(carService.getCarsByDriverId(driverId, pageable));
+    }
+
+    @Operation(
+            summary = "Delete a car",
+            description = "Deletes the car identified by the given ID."
+    )
+    @DeleteMapping("/{driverId}/cars/{carId}")
+    public ResponseEntity<Void> deleteCar(
+        @PathVariable Long driverId,
+        @PathVariable Long carId
+    ) {
+        carService.deleteCar(driverId, carId);
+
+        return ResponseEntity.noContent().build();
     }
 }

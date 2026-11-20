@@ -16,5 +16,5 @@ public interface CarService {
 
     public DriverCarsResponseDTO getCarsByDriverId(Long driverId, Pageable pageable);
 
-    public void deleteCar(Long id);
+    public void deleteCar(Long driverId, Long carId);
 }
