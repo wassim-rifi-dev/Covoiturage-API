@@ -1,9 +1,11 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.feature.car.dto.request.CreateCarRequestDTO;
+import ma.youcode.covoiturage.feature.car.dto.request.UpdateCarRequestDTO;
 import ma.youcode.covoiturage.feature.car.dto.response.CarResponseDTO;
 import ma.youcode.covoiturage.feature.car.service.CarService;
 import ma.youcode.covoiturage.feature.driver.dto.response.DriverCarsResponseDTO;
@@ -37,6 +39,23 @@ public class DriverCarController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(responseDTO);
+    }
+
+    @Operation(
+            summary = "Update a car",
+            description = "Updates the information of an existing car identified by its ID."
+    )
+    @PutMapping("/{driverId}/cars/{carId}")
+    public ResponseEntity<CarResponseDTO> updateCar(
+            @PathVariable Long driverId,
+            @PathVariable Long carId,
+            @Valid @RequestBody UpdateCarRequestDTO requestDTO
+    ) {
+        log.debug("PUT /api/cars/{}/cars/{}", driverId, carId);
+
+        CarResponseDTO responseDTO = carService.updateCar(driverId, carId , requestDTO);
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/{driverId}/cars")
