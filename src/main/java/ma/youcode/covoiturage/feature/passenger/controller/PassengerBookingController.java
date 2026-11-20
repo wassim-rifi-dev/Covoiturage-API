@@ -32,7 +32,7 @@ public class PassengerBookingController {
 
         BookingResponseDTO responseDTO = bookingService.createBooking(passengerId, requestDTO);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/bookings/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
