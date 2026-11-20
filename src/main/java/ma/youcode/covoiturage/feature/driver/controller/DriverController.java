@@ -22,7 +22,7 @@ import java.net.URI;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/driver")
+@RequestMapping("/api/drivers")
 @RequiredArgsConstructor
 @Tag(
         name = "Driver",
@@ -39,7 +39,7 @@ public class DriverController {
     public ResponseEntity<DriverResponseDTO> createDriver(
             @Valid @RequestBody CreateDriverRequestDTO requestDTO
     ) {
-        log.debug("POST /api/driver");
+        log.debug("POST /api/drivers");
 
         DriverResponseDTO responseDTO = driverService.createDriver(requestDTO);
 
@@ -57,7 +57,7 @@ public class DriverController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<DriverResponseDTO> getDriverById(@PathVariable Long id) {
-        log.debug("Get /api/driver/{}" , id);
+        log.debug("Get /api/drivers/{}" , id);
 
         DriverResponseDTO responseDTO = driverService.getDriverById(id);
 
@@ -73,7 +73,7 @@ public class DriverController {
             @PathVariable Long id ,
             @Valid @RequestBody UpdateDriverRequestDTO requestDTO
     ) {
-        log.debug("PUT /api/driver/{}", id);
+        log.debug("PUT /api/drivers/{}", id);
 
         DriverResponseDTO responseDTO = driverService.updateDriver(id , requestDTO);
 
@@ -92,7 +92,7 @@ public class DriverController {
             @RequestParam(required = false) String licenseNumber,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        log.debug("GET /api/driver page={} size={} search", pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("GET /api/drivers page={} size={} search", pageable.getPageNumber(), pageable.getPageSize());
 
         DriverSearchCriteria criteria = new DriverSearchCriteria(fullName, email, phone, licenseNumber);
 

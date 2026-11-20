@@ -1,7 +1,5 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.feature.trip.dto.request.CreateTripRequestDTO;
@@ -17,23 +15,15 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
-@Tag(
-        name = "Driver Trips",
-        description = "Endpoints for drivers to create and manage their trips."
-)
 public class DriverTripController {
     private final TripService tripService;
 
-    @Operation(
-            summary = "Create a trip",
-            description = "Creates a new trip published by the given driver."
-    )
-    @PostMapping("/{driverId}/trip")
+    @PostMapping("/{driverId}/trips")
     public ResponseEntity<TripResponseDTO> createTrip(
             @PathVariable Long driverId,
             @RequestBody CreateTripRequestDTO requestDTO
     ) {
-        log.debug("POST /api/trips/{}", driverId);
+        log.debug("POST /api/drivers/{}/trips", driverId);
 
         TripResponseDTO responseDTO = tripService.createTrip(driverId, requestDTO);
 
@@ -45,10 +35,6 @@ public class DriverTripController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
-    @Operation(
-            summary = "Cancel a trip",
-            description = "Cancels a trip belonging to the given driver."
-    )
     @PatchMapping("/{driverId}/trips/{tripId}/cancel")
     public ResponseEntity<Void> cancelTrip(
             @PathVariable Long driverId,
@@ -60,10 +46,6 @@ public class DriverTripController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Complete a trip",
-            description = "Marks a trip belonging to the given driver as completed."
-    )
     @PatchMapping("/{driverId}/trips/{tripId}/complet")
     public ResponseEntity<Void> completTrip(
             @PathVariable Long driverId,

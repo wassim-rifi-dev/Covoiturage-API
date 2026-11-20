@@ -1,7 +1,5 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +21,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
-@Tag(
-        name = "Driver Cars",
-        description = "Endpoints for drivers to register and list their cars."
-)
 public class DriverCarController {
     private final CarService carService;
 
-    @Operation(
-            summary = "Register a car for a driver",
-            description = "Creates a new car and associates it with the given driver."
-    )
-    @PostMapping("/{driverId}/car")
+    @PostMapping("/{driverId}/cars")
     public ResponseEntity<CarResponseDTO> createCar(
             @PathVariable Long driverId,
             @Valid @RequestBody CreateCarRequestDTO requestDTO
@@ -42,23 +32,19 @@ public class DriverCarController {
         CarResponseDTO responseDTO = carService.createCar(driverId, requestDTO);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/car/{id}")
+                .path("/api/cars/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
-    @Operation(
-            summary = "List a driver's cars",
-            description = "Returns a paginated list of the cars owned by the given driver."
-    )
-    @GetMapping("/{driverId}/car")
+    @GetMapping("/{driverId}/cars")
     public ResponseEntity<DriverCarsResponseDTO> getCarsByDriverId(
             @PathVariable Long driverId,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        log.debug("GET /api/drivers/{}/car page={} size={}", driverId, pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("GET /api/drivers/{}/cars page={} size={}", driverId, pageable.getPageNumber(), pageable.getPageSize());
 
         return ResponseEntity.ok(carService.getCarsByDriverId(driverId, pageable));
     }

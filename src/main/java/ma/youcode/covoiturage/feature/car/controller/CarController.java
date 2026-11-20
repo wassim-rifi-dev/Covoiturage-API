@@ -28,7 +28,7 @@ public class CarController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<CarResponseDTO> getCarById(@PathVariable Long id) {
-        log.debug("GET /api/car/{}", id);
+        log.debug("GET /api/cars/{}", id);
 
         CarResponseDTO responseDTO = carService.getCarById(id);
 
@@ -44,7 +44,7 @@ public class CarController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateCarRequestDTO requestDTO
     ) {
-        log.debug("PUT /api/car/{}", id);
+        log.debug("PUT /api/cars/{}", id);
 
         CarResponseDTO responseDTO = carService.updateCar(id, requestDTO);
 
