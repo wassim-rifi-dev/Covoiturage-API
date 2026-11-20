@@ -30,9 +30,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -734,6 +739,100 @@ public class BookingServiceImpTest {
         // Verify
         verify(tripRepository).save(trip);
         verify(bookingRepository).save(booking);
+    }
+
+    @Test
+    @DisplayName("Should return page of bookings when passenger exists")
+    void getPassengerBooking_shouldReturnPageOfBookings_whenPassengerExists() {
+        // Arrange
+        Long passengerId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Booking booking1 = Booking.builder()
+                .id(1L)
+                .numberOfSeats(2)
+                .totalAmount(BigDecimal.valueOf(100))
+                .status(BookingStatus.CONFIRMED)
+                .bookingDate(LocalDateTime.now())
+                .passenger(passenger)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .id(2L)
+                .numberOfSeats(1)
+                .totalAmount(BigDecimal.valueOf(50))
+                .status(BookingStatus.CANCELLED)
+                .bookingDate(LocalDateTime.now())
+                .passenger(passenger)
+                .build();
+
+        Page<Booking> bookingPage = new PageImpl<>(List.of(booking1, booking2), pageable, 2);
+
+        BookingResponseDTO response1 = BookingResponseDTO.builder()
+                .id(1L)
+                .numberOfSeats(2)
+                .totalAmount(BigDecimal.valueOf(100))
+                .status(BookingStatus.CONFIRMED)
+                .build();
+
+        BookingResponseDTO response2 = BookingResponseDTO.builder()
+                .id(2L)
+                .numberOfSeats(1)
+                .totalAmount(BigDecimal.valueOf(50))
+                .status(BookingStatus.CANCELLED)
+                .build();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(bookingRepository.findAllByPassengerId(passengerId, pageable)).thenReturn(bookingPage);
+        when(bookingMapper.toResponseDto(booking1)).thenReturn(response1);
+        when(bookingMapper.toResponseDto(booking2)).thenReturn(response2);
+
+        // Act
+        Page<BookingResponseDTO> result = bookingService.getPassengerBooking(passengerId, pageable);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2 , result.getTotalElements());
+        assertEquals(2 , result.getContent().size());
+        assertEquals(response1 , result.getContent().get(0));
+        assertEquals(response2 , result.getContent().get(1));
+        assertEquals(1L , result.getContent().get(0).id());
+        assertEquals(BookingStatus.CONFIRMED , result.getContent().get(0).status());
+        assertEquals(2L , result.getContent().get(1).id());
+        assertEquals(BookingStatus.CANCELLED , result.getContent().get(1).status());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verify(bookingRepository).findAllByPassengerId(passengerId, pageable);
+        verify(bookingMapper).toResponseDto(booking1);
+        verify(bookingMapper).toResponseDto(booking2);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when passenger not found")
+    void getPassengerBooking_shouldThrowUserNotFoundException_whenPassengerNotFound() {
+        // Arrange
+        Long passengerId = 99L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.empty());
+
+        // Act
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> bookingService.getPassengerBooking(passengerId , pageable)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Passenger not exist with id=" + passengerId , exception.getMessage());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verifyNoInteractions(bookingRepository, bookingMapper);
     }
 
     private Booking buildBooking(Long bookingId, Passenger passenger, BookingStatus bookingStatus,
