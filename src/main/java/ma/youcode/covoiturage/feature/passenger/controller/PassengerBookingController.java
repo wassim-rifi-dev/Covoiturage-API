@@ -23,17 +23,17 @@ import java.net.URI;
 public class PassengerBookingController {
     private final BookingService bookingService;
 
-    @PostMapping("/{passengerId}/booking")
+    @PostMapping("/{passengerId}/bookings")
     public ResponseEntity<BookingResponseDTO> createBooking(
         @PathVariable Long passengerId,
         @Valid @RequestBody CreateBookingRequestDTO requestDTO
     ) {
-        log.warn("POST /api/passenger/{}/booking", passengerId);
+        log.warn("POST /api/passengers/{}/bookings", passengerId);
 
         BookingResponseDTO responseDTO = bookingService.createBooking(passengerId, requestDTO);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/api/booking/{id}")
+                .path("/api/bookings/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 

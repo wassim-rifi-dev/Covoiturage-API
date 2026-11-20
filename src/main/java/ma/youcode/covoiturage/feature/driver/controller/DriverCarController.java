@@ -24,7 +24,7 @@ import java.net.URI;
 public class DriverCarController {
     private final CarService carService;
 
-    @PostMapping("/{driverId}/car")
+    @PostMapping("/{driverId}/cars")
     public ResponseEntity<CarResponseDTO> createCar(
             @PathVariable Long driverId,
             @Valid @RequestBody CreateCarRequestDTO requestDTO
@@ -32,19 +32,19 @@ public class DriverCarController {
         CarResponseDTO responseDTO = carService.createCar(driverId, requestDTO);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/car/{id}")
+                .path("/api/cars/{id}")
                 .buildAndExpand(responseDTO.id())
                 .toUri();
 
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
-    @GetMapping("/{driverId}/car")
+    @GetMapping("/{driverId}/cars")
     public ResponseEntity<DriverCarsResponseDTO> getCarsByDriverId(
             @PathVariable Long driverId,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        log.debug("GET /api/drivers/{}/car page={} size={}", driverId, pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("GET /api/drivers/{}/cars page={} size={}", driverId, pageable.getPageNumber(), pageable.getPageSize());
 
         return ResponseEntity.ok(carService.getCarsByDriverId(driverId, pageable));
     }

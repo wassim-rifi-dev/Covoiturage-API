@@ -18,12 +18,12 @@ import java.net.URI;
 public class DriverTripController {
     private final TripService tripService;
 
-    @PostMapping("/{driverId}/trip")
+    @PostMapping("/{driverId}/trips")
     public ResponseEntity<TripResponseDTO> createTrip(
             @PathVariable Long driverId,
             @RequestBody CreateTripRequestDTO requestDTO
     ) {
-        log.debug("POST /api/trips/{}", driverId);
+        log.debug("POST /api/drivers/{}/trips", driverId);
 
         TripResponseDTO responseDTO = tripService.createTrip(driverId, requestDTO);
 
