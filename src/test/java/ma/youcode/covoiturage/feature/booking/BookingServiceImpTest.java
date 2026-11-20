@@ -4,6 +4,7 @@ import ma.youcode.covoiturage.common.exception.TripNotBookableException;
 import ma.youcode.covoiturage.common.exception.UserNotFoundException;
 import ma.youcode.covoiturage.feature.booking.dto.request.CreateBookingRequestDTO;
 import ma.youcode.covoiturage.feature.booking.dto.response.BookingResponseDTO;
+import ma.youcode.covoiturage.feature.booking.exception.NotEnoughAvailableSeatsException;
 import ma.youcode.covoiturage.feature.booking.mapper.BookingMapper;
 import ma.youcode.covoiturage.feature.booking.model.entity.Booking;
 import ma.youcode.covoiturage.feature.booking.model.enums.BookingStatus;
@@ -357,6 +358,68 @@ public class BookingServiceImpTest {
         // Assert
         assertNotNull(exception);
         assertEquals("This trip is bookable." , exception.getMessage());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verify(tripRepository).findById(tripId);
+        verify(waypointRepository).findById(pickupPointId);
+        verify(waypointRepository).findById(dropoffPointId);
+        verify(tripRepository, never()).save(any(Trip.class));
+        verifyNoInteractions(bookingMapper, bookingRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw a NotEnoughAvailableSeatsException when remaining seats are insufficient")
+    void createBooking_shouldThrowNotEnoughAvailableSeatsException_whenSeatsInsufficient() {
+        // Arrange
+        Long passengerId = 1L;
+        Long tripId = 10L;
+        Long pickupPointId = 100L;
+        Long dropoffPointId = 200L;
+        int requestedSeats = 3;
+
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(tripId, requestedSeats, pickupPointId, dropoffPointId);
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Trip trip = Trip.builder()
+                .id(tripId)
+                .proposedSeats(1)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        Waypoint pickupPoint = Waypoint.builder()
+                .id(pickupPointId)
+                .city("Casablanca")
+                .order(0)
+                .priceFromStart(BigDecimal.ZERO)
+                .passageTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        Waypoint dropoffPoint = Waypoint.builder()
+                .id(dropoffPointId)
+                .city("Rabat")
+                .order(1)
+                .priceFromStart(BigDecimal.valueOf(50))
+                .passageTime(LocalDateTime.now().plusDays(2).plusHours(1))
+                .build();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
+        when(waypointRepository.findById(pickupPointId)).thenReturn(Optional.of(pickupPoint));
+        when(waypointRepository.findById(dropoffPointId)).thenReturn(Optional.of(dropoffPoint));
+
+        // Act
+        NotEnoughAvailableSeatsException exception = assertThrows(
+                NotEnoughAvailableSeatsException.class,
+                () -> bookingService.createBooking(passengerId , requestDTO)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Not enough available seats for this trip." , exception.getMessage());
 
         // Verify
         verify(passengerRepository).findById(passengerId);
