@@ -1,6 +1,7 @@
 package ma.youcode.covoiturage.feature.booking.repository;
 
 import ma.youcode.covoiturage.feature.booking.model.entity.Booking;
+import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

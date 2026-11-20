@@ -17,6 +17,7 @@ import ma.youcode.covoiturage.feature.passenger.model.entity.Passenger;
 import ma.youcode.covoiturage.feature.passenger.repository.PassengerRepository;
 import ma.youcode.covoiturage.feature.trip.exception.DriverNotAuthorizedForTripException;
 import ma.youcode.covoiturage.feature.trip.exception.TripNotFoundException;
+import ma.youcode.covoiturage.feature.trip.exception.WaypointNotBelongToTripException;
 import ma.youcode.covoiturage.feature.trip.exception.WaypointNotFoundException;
 import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
 import ma.youcode.covoiturage.feature.trip.model.entity.Waypoint;
@@ -62,6 +63,10 @@ public class BookingServiceImp implements BookingService {
 
         if (trip.getRemainingSeats() < requestDTO.numberOfSeats()) {
             throw new NotEnoughAvailableSeatsException("Not enough available seats for this trip.");
+        }
+
+        if (!trip.getWaypoints().contains(pickupPoint) && !trip.getWaypoints().contains(dropoffPoint)) {
+            throw new WaypointNotBelongToTripException("Pickup point or dropoff point does not belong to this trip");
         }
 
         Booking booking = bookingMapper.toEntity(requestDTO);
