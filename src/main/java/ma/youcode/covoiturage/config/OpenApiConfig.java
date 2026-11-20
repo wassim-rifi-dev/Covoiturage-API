@@ -14,8 +14,8 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(
                         new Info()
-                                .title("RideFlow API")
-                                .description("REST API documentation for RideFlow")
+                                .title("Covoiturage API")
+                                .description("REST API documentation for covoiturage")
                                 .version("1.0.0")
                                 .contact(
                                         new Contact()
