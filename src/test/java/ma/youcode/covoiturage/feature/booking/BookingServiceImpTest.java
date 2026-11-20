@@ -14,6 +14,7 @@ import ma.youcode.covoiturage.feature.booking.model.entity.Booking;
 import ma.youcode.covoiturage.feature.booking.model.enums.BookingStatus;
 import ma.youcode.covoiturage.feature.booking.repository.BookingRepository;
 import ma.youcode.covoiturage.feature.booking.service.BookingServiceImp;
+import ma.youcode.covoiturage.feature.driver.model.entity.Driver;
 import ma.youcode.covoiturage.feature.driver.repository.DriverRepository;
 import ma.youcode.covoiturage.feature.passenger.model.entity.Passenger;
 import ma.youcode.covoiturage.feature.passenger.repository.PassengerRepository;
@@ -832,6 +833,109 @@ public class BookingServiceImpTest {
 
         // Verify
         verify(passengerRepository).findById(passengerId);
+        verifyNoInteractions(bookingRepository, bookingMapper);
+    }
+
+    @Test
+    @DisplayName("Should return page of bookings when driver exists")
+    void getDriverBooking_shouldReturnPageOfBookings_whenDriverExists() {
+        // Arrange
+        Long driverId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Driver driver = new Driver();
+        driver.setId(driverId);
+
+        Trip trip = Trip.builder()
+                .id(10L)
+                .proposedSeats(4)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .driver(driver)
+                .build();
+
+        Booking booking1 = Booking.builder()
+                .id(1L)
+                .numberOfSeats(2)
+                .totalAmount(BigDecimal.valueOf(100))
+                .status(BookingStatus.CONFIRMED)
+                .bookingDate(LocalDateTime.now())
+                .trip(trip)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .id(2L)
+                .numberOfSeats(1)
+                .totalAmount(BigDecimal.valueOf(50))
+                .status(BookingStatus.CANCELLED)
+                .bookingDate(LocalDateTime.now())
+                .trip(trip)
+                .build();
+
+        Page<Booking> bookingPage = new PageImpl<>(List.of(booking1, booking2), pageable, 2);
+
+        BookingResponseDTO response1 = BookingResponseDTO.builder()
+                .id(1L)
+                .numberOfSeats(2)
+                .totalAmount(BigDecimal.valueOf(100))
+                .status(BookingStatus.CONFIRMED)
+                .build();
+
+        BookingResponseDTO response2 = BookingResponseDTO.builder()
+                .id(2L)
+                .numberOfSeats(1)
+                .totalAmount(BigDecimal.valueOf(50))
+                .status(BookingStatus.CANCELLED)
+                .build();
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(bookingRepository.findAllByTripDriverId(driverId, pageable)).thenReturn(bookingPage);
+        when(bookingMapper.toResponseDto(booking1)).thenReturn(response1);
+        when(bookingMapper.toResponseDto(booking2)).thenReturn(response2);
+
+        // Act
+        Page<BookingResponseDTO> result = bookingService.getDriverBooking(driverId, pageable);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2 , result.getTotalElements());
+        assertEquals(2 , result.getContent().size());
+        assertEquals(response1 , result.getContent().get(0));
+        assertEquals(response2 , result.getContent().get(1));
+        assertEquals(1L , result.getContent().get(0).id());
+        assertEquals(BookingStatus.CONFIRMED , result.getContent().get(0).status());
+        assertEquals(2L , result.getContent().get(1).id());
+        assertEquals(BookingStatus.CANCELLED , result.getContent().get(1).status());
+
+        // Verify
+        verify(driverRepository).findById(driverId);
+        verify(bookingRepository).findAllByTripDriverId(driverId, pageable);
+        verify(bookingMapper).toResponseDto(booking1);
+        verify(bookingMapper).toResponseDto(booking2);
+        verifyNoInteractions(passengerRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when driver not found")
+    void getDriverBooking_shouldThrowUserNotFoundException_whenDriverNotFound() {
+        // Arrange
+        Long driverId = 99L;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(driverRepository.findById(driverId)).thenReturn(Optional.empty());
+
+        // Act
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> bookingService.getDriverBooking(driverId , pageable)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Driver not exist with id=" + driverId , exception.getMessage());
+
+        // Verify
+        verify(driverRepository).findById(driverId);
         verifyNoInteractions(bookingRepository, bookingMapper);
     }
 
