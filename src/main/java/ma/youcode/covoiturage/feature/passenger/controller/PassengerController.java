@@ -37,7 +37,7 @@ public class PassengerController {
     )
     @PostMapping
     public ResponseEntity<PassengerResponseDTO> createPassenger(
-            @RequestBody CreatePassengeRequestDTO requestDTO
+            @Valid @RequestBody CreatePassengeRequestDTO requestDTO
     ) {
         log.debug("POST /api/passengers");
 
