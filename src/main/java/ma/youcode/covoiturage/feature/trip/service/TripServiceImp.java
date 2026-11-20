@@ -104,6 +104,8 @@ public class TripServiceImp implements TripService {
                         criteria.maxPrice(),
                         criteria.minSeats(),
                         criteria.waypointCity(),
+                        List.of(TripStatus.CANCELLED, TripStatus.COMPLETED),
+                        LocalDateTime.now(),
                         pageable
                 )
                 .map(tripMapper::toResponseDto);
