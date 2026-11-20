@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImp implements BookingService {
     private final BookingRepository bookingRepository;
 
@@ -119,7 +120,6 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<BookingResponseDTO> getPassengerBooking(Long passengerId, Pageable pageable) {
         passengerExist(passengerId);
 
@@ -128,7 +128,6 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<BookingResponseDTO> getDriverBooking(Long driverId, Pageable pageable) {
         driverExist(driverId);
 
@@ -137,7 +136,6 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<BookingResponseDTO> getDriverTripBookings(Long driverId, Long tripId, Pageable pageable) {
         driverExist(driverId);
 

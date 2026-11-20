@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import ma.youcode.covoiturage.common.exception.EmailAlreadyExistsException;
 import ma.youcode.covoiturage.feature.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImp implements UserService{
 
     private final UserRepository userRepository;
