@@ -4,14 +4,18 @@ import ma.youcode.covoiturage.feature.booking.model.entity.Booking;
 import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+    @EntityGraph(attributePaths = {"trip", "trip.driver", "trip.car", "passenger", "pickupPoint", "dropoffPoint"})
     Page<Booking> findAllByPassengerId(Long passengerId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {})
     Page<Booking> findAllByTripDriverId(Long driverId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"trip", "trip.driver", "trip.car", "passenger", "pickupPoint", "dropoffPoint"})
     Page<Booking> findAllByTripId(Long tripId, Pageable pageable);
 }
