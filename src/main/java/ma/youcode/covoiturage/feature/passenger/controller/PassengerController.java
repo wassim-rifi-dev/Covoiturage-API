@@ -1,5 +1,7 @@
 package ma.youcode.covoiturage.feature.passenger.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +24,17 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/passengers")
 @RequiredArgsConstructor
+@Tag(
+        name = "Passenger",
+        description = "Passenger management endpoints."
+)
 public class PassengerController {
     private final PassengerService passengerService;
 
+    @Operation(
+            summary = "Create a passenger",
+            description = "Registers a new passenger account."
+    )
     @PostMapping
     public ResponseEntity<PassengerResponseDTO> createPassenger(
             @RequestBody CreatePassengeRequestDTO requestDTO
@@ -41,6 +51,10 @@ public class PassengerController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
+    @Operation(
+            summary = "Update a passenger",
+            description = "Updates the information of an existing passenger identified by its ID."
+    )
     @PutMapping("/{id}")
     public ResponseEntity<PassengerResponseDTO> updatePassenger(
             @PathVariable Long id,
@@ -53,6 +67,10 @@ public class PassengerController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(
+            summary = "Search passengers",
+            description = "Returns a paginated list of passengers matching the optional search criteria."
+    )
     @GetMapping
     public ResponseEntity<PagedModel<PassengerResponseDTO>> searchPassengers(
             @RequestParam(required = false) String fullName,

@@ -1,5 +1,7 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +24,17 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
+@Tag(
+        name = "Driver",
+        description = "Driver management endpoints."
+)
 public class DriverController {
     private final DriverService driverService;
 
+    @Operation(
+            summary = "Create a driver",
+            description = "Registers a new driver account."
+    )
     @PostMapping
     public ResponseEntity<DriverResponseDTO> createDriver(
             @Valid @RequestBody CreateDriverRequestDTO requestDTO
@@ -41,6 +51,10 @@ public class DriverController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
+    @Operation(
+            summary = "Get a driver by ID",
+            description = "Returns the details of the driver identified by the given ID."
+    )
     @GetMapping("/{id}")
     public ResponseEntity<DriverResponseDTO> getDriverById(@PathVariable Long id) {
         log.debug("Get /api/drivers/{}" , id);
@@ -50,6 +64,10 @@ public class DriverController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(
+            summary = "Update a driver",
+            description = "Updates the information of an existing driver identified by its ID."
+    )
     @PutMapping("/{id}")
     public ResponseEntity<DriverResponseDTO> updateDriver(
             @PathVariable Long id ,
@@ -62,6 +80,10 @@ public class DriverController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(
+            summary = "Search drivers",
+            description = "Returns a paginated list of drivers matching the optional search criteria."
+    )
     @GetMapping
     public ResponseEntity<PagedModel<DriverResponseDTO>> searchDriver(
             @RequestParam(required = false) String fullName,
