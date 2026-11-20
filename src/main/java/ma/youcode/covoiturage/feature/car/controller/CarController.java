@@ -34,31 +34,4 @@ public class CarController {
 
         return ResponseEntity.ok(responseDTO);
     }
-
-    @Operation(
-            summary = "Update a car",
-            description = "Updates the information of an existing car identified by its ID."
-    )
-    @PutMapping("/{id}")
-    public ResponseEntity<CarResponseDTO> updateCar(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateCarRequestDTO requestDTO
-    ) {
-        log.debug("PUT /api/cars/{}", id);
-
-        CarResponseDTO responseDTO = carService.updateCar(id, requestDTO);
-
-        return ResponseEntity.ok(responseDTO);
-    }
-
-    @Operation(
-            summary = "Delete a car",
-            description = "Deletes the car identified by the given ID."
-    )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
-        carService.deleteCar(id);
-
-        return ResponseEntity.noContent().build();
-    }
 }

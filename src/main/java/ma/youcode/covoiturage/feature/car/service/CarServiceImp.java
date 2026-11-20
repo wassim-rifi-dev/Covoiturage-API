@@ -2,10 +2,7 @@ package ma.youcode.covoiturage.feature.car.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ma.youcode.covoiturage.common.exception.CarHasTripException;
-import ma.youcode.covoiturage.common.exception.CarNotFoundException;
-import ma.youcode.covoiturage.common.exception.LicensePlateAlreadyExistsException;
-import ma.youcode.covoiturage.common.exception.UserNotFoundException;
+import ma.youcode.covoiturage.common.exception.*;
 import ma.youcode.covoiturage.feature.car.dto.request.CreateCarRequestDTO;
 import ma.youcode.covoiturage.feature.car.dto.request.UpdateCarRequestDTO;
 import ma.youcode.covoiturage.feature.car.dto.response.CarResponseDTO;
@@ -65,10 +62,15 @@ public class CarServiceImp implements CarService {
 
     @Override
     @Transactional
-    public CarResponseDTO updateCar(Long id, UpdateCarRequestDTO requestDTO) {
-        Car car = findCarById(id);
+    public CarResponseDTO updateCar(Long driverId , Long carId, UpdateCarRequestDTO requestDTO) {
+        Car car = findCarById(carId);
+        Driver driver = findDriverById(driverId);
 
-        if (carRepository.existsByLicensePlateAndIdNot(requestDTO.licensePlate(), id)) {
+        if (!car.getDriver().getId().equals(driver.getId())) {
+            throw new CarDoesNotBelongToDriverException("This car does not belong to the specified driver");
+        }
+
+        if (carRepository.existsByLicensePlateAndIdNot(requestDTO.licensePlate(), carId)) {
             throw new LicensePlateAlreadyExistsException("License plate already exists.");
         }
 
@@ -82,8 +84,7 @@ public class CarServiceImp implements CarService {
     @Override
     @Transactional(readOnly = true)
     public DriverCarsResponseDTO getCarsByDriverId(Long driverId, Pageable pageable) {
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new UserNotFoundException("Driver not found with id=" + driverId));
+        Driver driver = findDriverById(driverId);
 
         Page<CarSummaryResponseDTO> cars = carRepository.findAllByDriverId(driverId, pageable)
                 .map(carMapper::toSummaryDto);
@@ -99,8 +100,14 @@ public class CarServiceImp implements CarService {
     }
 
     @Override
-    public void deleteCar(Long id) {
-        Car car = findCarById(id);
+    @Transactional
+    public void deleteCar(Long driverId, Long carId) {
+        Car car = findCarById(carId);
+        Driver driver = findDriverById(driverId);
+
+        if (!car.getDriver().getId().equals(driver.getId())) {
+            throw new CarDoesNotBelongToDriverException("This car does not belong to the specified driver");
+        }
 
         carHasTrip(car);
 
@@ -122,5 +129,10 @@ public class CarServiceImp implements CarService {
         if (tripService.tripExistByCarAndStatuNotIn(car)) {
             throw new CarHasTripException("This car has a trip.");
         }
+    }
+
+    private Driver findDriverById(Long driverId) {
+        return driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver not found with id=" + driverId));
     }
 }

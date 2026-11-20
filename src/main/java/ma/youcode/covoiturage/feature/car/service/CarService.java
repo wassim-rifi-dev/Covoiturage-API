@@ -12,9 +12,9 @@ public interface CarService {
 
     public CarResponseDTO getCarById(Long id);
 
-    public CarResponseDTO updateCar(Long id, UpdateCarRequestDTO requestDTO);
+    public CarResponseDTO updateCar(Long driverId, Long carId, UpdateCarRequestDTO requestDTO);
 
     public DriverCarsResponseDTO getCarsByDriverId(Long driverId, Pageable pageable);
 
-    public void deleteCar(Long id);
+    public void deleteCar(Long driverId, Long carId);
 }
