@@ -1,5 +1,6 @@
 package ma.youcode.covoiturage.feature.driver.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.feature.trip.dto.request.CreateTripRequestDTO;
@@ -21,7 +22,7 @@ public class DriverTripController {
     @PostMapping("/{driverId}/trips")
     public ResponseEntity<TripResponseDTO> createTrip(
             @PathVariable Long driverId,
-            @RequestBody CreateTripRequestDTO requestDTO
+            @Valid @RequestBody CreateTripRequestDTO requestDTO
     ) {
         log.debug("POST /api/drivers/{}/trips", driverId);
 
