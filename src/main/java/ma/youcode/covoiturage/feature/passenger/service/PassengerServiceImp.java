@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PassengerServiceImp implements PassengerService {
     private final UserService userService;
 
@@ -28,8 +29,8 @@ public class PassengerServiceImp implements PassengerService {
 
     private final PassengerMapper passengerMapper;
 
-    @Transactional
     @Override
+    @Transactional
     public PassengerResponseDTO createPassenger(CreatePassengeRequestDTO requestDTO) {
         userService.userExistByEmail(requestDTO.email());
 
@@ -42,8 +43,8 @@ public class PassengerServiceImp implements PassengerService {
         return passengerMapper.toResponseDto(createdPassenger);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public PassengerResponseDTO updatePassenger(Long id, UpdatePassengerRequestDTO requestDTO) {
         Passenger passenger = passengerRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Passenger not found with id=" + id));
@@ -59,7 +60,6 @@ public class PassengerServiceImp implements PassengerService {
         return passengerMapper.toResponseDto(updatedPassenger);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<PassengerResponseDTO> searchPassengers(PassengerSearchCriteria criteria, Pageable pageable) {
         Specification<Passenger> spec = Specification.allOf(

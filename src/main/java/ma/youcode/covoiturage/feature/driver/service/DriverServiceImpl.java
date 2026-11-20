@@ -27,6 +27,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DriverServiceImpl implements DriverService {
     private final UserService userService;
 
@@ -34,8 +35,8 @@ public class DriverServiceImpl implements DriverService {
 
     private final DriverMapper driverMapper;
 
-    @Transactional
     @Override
+    @Transactional
     public DriverResponseDTO createDriver(CreateDriverRequestDTO requestDTO) {
         userService.userExistByEmail(requestDTO.email());
         driverExisteByLicenseNumber(requestDTO.licenseNumber());
@@ -49,7 +50,6 @@ public class DriverServiceImpl implements DriverService {
         return driverMapper.toResponseDto(createdDriver);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<DriverResponseDTO> getAllDrivers(Pageable pageable) {
         return driverRepository.findAll(pageable)
@@ -64,8 +64,8 @@ public class DriverServiceImpl implements DriverService {
         return driverMapper.toResponseDto(driver);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public DriverResponseDTO updateDriver(Long id, UpdateDriverRequestDTO requestDTO) {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Driver not found with id=" + id));

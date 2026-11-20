@@ -33,6 +33,7 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TripServiceImp implements TripService {
     private final TripRepository tripRepository;
 
@@ -92,7 +93,6 @@ public class TripServiceImp implements TripService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<TripResponseDTO> searchTrips(TripSearchCriteria criteria, Pageable pageable) {
         LocalDate date = criteria.departureDate();
 

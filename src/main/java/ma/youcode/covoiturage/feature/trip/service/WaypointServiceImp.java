@@ -7,6 +7,7 @@ import ma.youcode.covoiturage.feature.trip.dto.request.WaypointRequestDTO;
 import ma.youcode.covoiturage.feature.trip.exception.InvalidTripPriceException;
 import ma.youcode.covoiturage.feature.trip.exception.InvalidTripTimeException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class WaypointServiceImp implements WaypointService {
 
     @Override

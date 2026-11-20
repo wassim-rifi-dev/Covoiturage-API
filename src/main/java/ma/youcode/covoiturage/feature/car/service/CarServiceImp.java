@@ -25,6 +25,7 @@ import org.springframework.data.web.PagedModel;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CarServiceImp implements CarService {
     private final CarRepository carRepository;
 
@@ -53,7 +54,6 @@ public class CarServiceImp implements CarService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public CarResponseDTO getCarById(Long id) {
         Car car = findCarById(id);
 
@@ -82,7 +82,6 @@ public class CarServiceImp implements CarService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public DriverCarsResponseDTO getCarsByDriverId(Long driverId, Pageable pageable) {
         Driver driver = findDriverById(driverId);
 
