@@ -97,23 +97,16 @@ public class TripServiceImp implements TripService {
         LocalDate date = criteria.departureDate();
 
         return tripRepository.searchTrips(
-                        toLikePattern(criteria.departureCity()),
-                        toLikePattern(criteria.arrivalCity()),
+                        criteria.departureCity(),
+                        criteria.arrivalCity(),
                         date != null ? date.atStartOfDay() : null,
                         date != null ? date.plusDays(1).atStartOfDay() : null,
                         criteria.maxPrice(),
                         criteria.minSeats(),
-                        toLikePattern(criteria.waypointCity()),
+                        criteria.waypointCity(),
                         pageable
                 )
                 .map(tripMapper::toResponseDto);
-    }
-
-    private String toLikePattern(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        return "%" + value.trim().toLowerCase() + "%";
     }
 
     @Override
