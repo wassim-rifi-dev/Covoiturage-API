@@ -12,6 +12,7 @@ import ma.youcode.covoiturage.feature.driver.repository.DriverRepository;
 import ma.youcode.covoiturage.feature.passenger.model.entity.Passenger;
 import ma.youcode.covoiturage.feature.passenger.repository.PassengerRepository;
 import ma.youcode.covoiturage.feature.trip.exception.TripNotFoundException;
+import ma.youcode.covoiturage.feature.trip.exception.WaypointNotFoundException;
 import ma.youcode.covoiturage.feature.trip.model.entity.Trip;
 import ma.youcode.covoiturage.feature.trip.model.entity.Waypoint;
 import ma.youcode.covoiturage.feature.trip.model.enums.TripStatus;
@@ -206,5 +207,48 @@ public class BookingServiceImpTest {
         verify(tripRepository).findById(tripId);
         verify(tripRepository, never()).save(any(Trip.class));
         verifyNoInteractions(waypointRepository, bookingMapper, bookingRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw a WaypointNotFoundException when pickup point not exist")
+    void createBooking_shouldThrowWaypointNotFoundException_whenPickupPointNotFound() {
+        // Arrange
+        Long passengerId = 1L;
+        Long tripId = 999L;
+        Long pickupPointId = 999L;
+
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(tripId, 2, pickupPointId, 200L);
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Trip trip = Trip.builder()
+                .id(tripId)
+                .proposedSeats(4)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
+        when(waypointRepository.findById(pickupPointId)).thenReturn(Optional.empty());
+
+        // Act
+        WaypointNotFoundException exception = assertThrows(
+                WaypointNotFoundException.class,
+                () -> bookingService.createBooking(passengerId , requestDTO)
+        );
+
+        // Assert
+        assertNotNull(exception);
+        assertEquals("Waypoint not exist with id=" + pickupPointId , exception.getMessage());
+
+        // Verify
+        verify(passengerRepository).findById(passengerId);
+        verify(tripRepository).findById(tripId);
+        verify(waypointRepository).findById(pickupPointId);
+        verify(waypointRepository, never()).findById(200L);
+        verify(tripRepository, never()).save(any(Trip.class));
+        verifyNoInteractions(bookingMapper, bookingRepository);
     }
 }
