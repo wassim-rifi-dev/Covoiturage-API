@@ -70,7 +70,7 @@ public class BookingServiceImp implements BookingService {
         booking.setPickupPoint(pickupPoint);
         booking.setDropoffPoint(dropoffPoint);
 
-        if (trip.getRemainingSeats() == 0) {
+        if (trip.getRemainingSeats() - requestDTO.numberOfSeats() == 0) {
             trip.setStatus(TripStatus.FULL);
 
             tripRepository.save(trip);

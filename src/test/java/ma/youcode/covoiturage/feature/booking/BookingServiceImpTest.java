@@ -429,4 +429,80 @@ public class BookingServiceImpTest {
         verify(tripRepository, never()).save(any(Trip.class));
         verifyNoInteractions(bookingMapper, bookingRepository);
     }
+
+    @Test
+    @DisplayName("Should set trip status to FULL when booking takes the last remaining seats")
+    void createBooking_shouldSetTripStatusToFull_whenNoRemainingSeats() {
+        // Arrange
+        Long passengerId = 1L;
+        Long tripId = 10L;
+        Long pickupPointId = 100L;
+        Long dropoffPointId = 200L;
+        int requestedSeats = 2;
+
+        CreateBookingRequestDTO requestDTO = new CreateBookingRequestDTO(tripId, requestedSeats, pickupPointId, dropoffPointId);
+
+        Passenger passenger = new Passenger();
+        passenger.setId(passengerId);
+
+        Trip trip = Trip.builder()
+                .id(tripId)
+                .proposedSeats(requestedSeats)
+                .status(TripStatus.PUBLISHED)
+                .departureDateTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        Waypoint pickupPoint = Waypoint.builder()
+                .id(pickupPointId)
+                .city("Casablanca")
+                .order(0)
+                .priceFromStart(BigDecimal.ZERO)
+                .passageTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        Waypoint dropoffPoint = Waypoint.builder()
+                .id(dropoffPointId)
+                .city("Rabat")
+                .order(1)
+                .priceFromStart(BigDecimal.valueOf(50))
+                .passageTime(LocalDateTime.now().plusDays(2).plusHours(1))
+                .build();
+
+        Booking booking = Booking.builder()
+                .numberOfSeats(requestedSeats)
+                .build();
+
+        Booking savedBooking = Booking.builder()
+                .id(1L)
+                .numberOfSeats(requestedSeats)
+                .status(BookingStatus.CONFIRMED)
+                .build();
+
+        BookingResponseDTO expectedResponse = BookingResponseDTO.builder()
+                .id(1L)
+                .numberOfSeats(requestedSeats)
+                .status(BookingStatus.CONFIRMED)
+                .build();
+
+        when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
+        when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
+        when(waypointRepository.findById(pickupPointId)).thenReturn(Optional.of(pickupPoint));
+        when(waypointRepository.findById(dropoffPointId)).thenReturn(Optional.of(dropoffPoint));
+        when(bookingMapper.toEntity(requestDTO)).thenReturn(booking);
+        when(bookingRepository.save(booking)).thenReturn(savedBooking);
+        when(bookingMapper.toResponseDto(savedBooking)).thenReturn(expectedResponse);
+
+        // Act
+        BookingResponseDTO result = bookingService.createBooking(passengerId , requestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(TripStatus.FULL, trip.getStatus());
+
+        // Verify
+        verify(tripRepository).save(trip);
+        verify(bookingRepository).save(booking);
+        verify(bookingMapper).toResponseDto(savedBooking);
+    }
 }
