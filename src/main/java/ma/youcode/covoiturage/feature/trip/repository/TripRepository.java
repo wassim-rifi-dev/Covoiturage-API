@@ -32,18 +32,20 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
 
     String SEARCH_CONDITIONS = """
-        WHERE (:departureCity IS NULL OR LOWER(t.departureCity) LIKE LOWER(CONCAT('%', :departureCity, '%')))
-          AND (:arrivalCity IS NULL OR LOWER(t.arrivalCity) LIKE LOWER(CONCAT('%', :arrivalCity, '%')))
-          AND (:dateFrom IS NULL OR t.departureDateTime >= :dateFrom)
-          AND (:dateTo IS NULL OR t.departureDateTime < :dateTo)
-          AND (:maxPrice IS NULL OR t.price <= :maxPrice)
-          AND (:minSeats IS NULL OR t.proposedSeats >= :minSeats)
-          AND (:waypointCity IS NULL OR EXISTS (
-                SELECT w.id FROM Waypoint w
-                WHERE w.trip = t
-                  AND LOWER(w.city) LIKE LOWER(CONCAT('%', :waypointCity, '%'))
-          ))
-        """;
+    WHERE (:departureCity IS NULL OR LOWER(t.departureCity) LIKE LOWER(CONCAT('%', :departureCity, '%')))
+      AND (:arrivalCity IS NULL OR LOWER(t.arrivalCity) LIKE LOWER(CONCAT('%', :arrivalCity, '%')))
+      AND (:dateFrom IS NULL OR t.departureDateTime >= :dateFrom)
+      AND (:dateTo IS NULL OR t.departureDateTime < :dateTo)
+      AND (:maxPrice IS NULL OR t.price <= :maxPrice)
+      AND (:minSeats IS NULL OR t.availableSeats >= :minSeats)
+      AND t.status NOT IN :excludedStatuses
+      AND t.departureDateTime > :now
+      AND (:waypointCity IS NULL OR EXISTS (
+            SELECT w.id FROM Waypoint w
+            WHERE w.trip = t
+              AND LOWER(w.city) LIKE LOWER(CONCAT('%', :waypointCity, '%'))
+      ))
+    """;
 
     @Query(
             value = "SELECT t FROM Trip t " + SEARCH_CONDITIONS,
@@ -57,6 +59,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("minSeats") Integer minSeats,
             @Param("waypointCity") String waypointCity,
+            @Param("excludedStatuses") Collection<TripStatus> excludedStatuses,
+            @Param("now") LocalDateTime now,
             Pageable pageable
     );
 }
