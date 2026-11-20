@@ -4,11 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import ma.youcode.covoiturage.common.exception.*;
 import ma.youcode.covoiturage.feature.booking.exception.*;
 import ma.youcode.covoiturage.feature.trip.exception.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -408,6 +415,141 @@ public class GlobalExceptionHandler {
         );
 
         problem.setTitle("Invalid trip price.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(WaypointNotBelongToTripException.class)
+    public ProblemDetail handleWaypointNotBelongToTripException(WaypointNotBelongToTripException exception) {
+        log.warn("400 Waypoint does not belong to trip.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Waypoint does not belong to trip.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidWaypointOrderException.class)
+    public ProblemDetail handleInvalidWaypointOrderException(InvalidWaypointOrderException exception) {
+        log.warn("400 Invalid waypoint order.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+
+        problem.setTitle("Invalid waypoint order.");
+
+        return problem;
+    }
+
+    // Framework exceptions (otherwise caught by the generic 500 handler)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        log.warn("400 Malformed request body.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Request body is missing or malformed."
+        );
+
+        problem.setTitle("Malformed request body.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        log.warn("400 Invalid parameter type: {}", exception.getName());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Invalid value '" + exception.getValue() + "' for parameter '" + exception.getName() + "'."
+        );
+
+        problem.setTitle("Invalid parameter type.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ProblemDetail handleMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        log.warn("400 Missing request parameter: {}", exception.getParameterName());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Required parameter '" + exception.getParameterName() + "' is missing."
+        );
+
+        problem.setTitle("Missing request parameter.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ProblemDetail handleHandlerMethodValidationException(HandlerMethodValidationException exception) {
+        log.warn("400 Parameter validation failed");
+
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+
+        problem.setTitle("Validation failed");
+
+        Map<String, String> errors = new HashMap<>();
+
+        exception.getParameterValidationResults()
+                .forEach(result -> result.getResolvableErrors()
+                        .forEach(error -> errors.put(
+                                result.getMethodParameter().getParameterName(),
+                                error.getDefaultMessage()
+                        )));
+
+        problem.setProperty("errors", errors);
+
+        return problem;
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ProblemDetail handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+        log.warn("405 Method not allowed: {}", exception.getMethod());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                "HTTP method '" + exception.getMethod() + "' is not supported for this endpoint."
+        );
+
+        problem.setTitle("Method not allowed.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ProblemDetail handleNoResourceFoundException(NoResourceFoundException exception) {
+        log.warn("404 Resource not found: {}", exception.getResourcePath());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "No endpoint found for '/" + exception.getResourcePath() + "'."
+        );
+
+        problem.setTitle("Resource not found.");
+
+        return problem;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
+        log.warn("409 Data integrity violation", exception);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                "The request conflicts with existing data."
+        );
+
+        problem.setTitle("Data integrity violation.");
 
         return problem;
     }
