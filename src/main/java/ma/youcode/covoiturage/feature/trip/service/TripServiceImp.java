@@ -85,7 +85,7 @@ public class TripServiceImp implements TripService {
 
     @Override
     public boolean tripExistByCarAndStatuNotIn(Car car) {
-        return tripRepository.existsByCarIdAndStatusNotIn(
+        return tripRepository.existsByCarAndStatusNotIn(
                 car,
                 List.of(TripStatus.COMPLETED, TripStatus.CANCELLED)
         );
