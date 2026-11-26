@@ -8,11 +8,14 @@ import ma.youcode.covoiturage.feature.user.model.entity.User;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@Builder
 @Entity
 @Table(name = "drivers")
-@PrimaryKeyJoinColumn(name = "id")
-public class Driver extends User {
+public class Driver {
     @Column(name = "license_number", unique = true, nullable = false)
     private String licenseNumber;
+
+    @OneToOne
+    @JoinColumn(name = "user_id" , nullable = false , unique = true)
+    private User user;
 }
