@@ -2,16 +2,17 @@ package ma.youcode.covoiturage.feature.user.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ma.youcode.covoiturage.feature.driver.model.entity.Driver;
+import ma.youcode.covoiturage.feature.user.model.enums.Role;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@Builder
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
-public abstract class User {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,4 +28,10 @@ public abstract class User {
 
     @Column(nullable = false)
     private String phone;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Driver driver;
 }
